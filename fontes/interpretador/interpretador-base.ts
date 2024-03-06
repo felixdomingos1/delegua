@@ -87,6 +87,7 @@ import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 import { MicroLexador } from '../lexador';
 import { MicroAvaliadorSintatico } from '../avaliador-sintatico';
+import { MicroAvaliadorSintaticoBase } from '../avaliador-sintatico/micro-avaliador-sintatico-base';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
@@ -123,7 +124,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
 
     microLexador: MicroLexador = new MicroLexador();
-    microAvaliadorSintatico: MicroAvaliadorSintatico = new MicroAvaliadorSintatico();
+    microAvaliadorSintatico: MicroAvaliadorSintaticoBase = new MicroAvaliadorSintatico();
 
     regexInterpolacao = /\${(.*?)}/g;
     private tiposNumericos = [
