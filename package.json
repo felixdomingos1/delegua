@@ -5,7 +5,7 @@
     "main": "index.js",
     "types": "index.d.ts",
     "scripts": {
-        "empacotar": "rimraf ./dist && tsc && copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && copyfiles -V ./package.json ./dist/bin && copyfiles -V ./README.md ./dist",
+        "empacotar": "yarn rimraf ./dist && tsc && yarn copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && yarn copyfiles -V ./package.json ./dist/bin && yarn copyfiles -V ./README.md ./dist",
         "gerar-documentacao-tecnica": "typedoc --out docs fontes/index.ts",
         "publicar-docs": "yarn gerar-documentacao-tecnica && copyfiles -V ./recursos/**/* ./docs && gh-pages -d docs",
         "publicar-npm": "npm publish ./dist --access public",
