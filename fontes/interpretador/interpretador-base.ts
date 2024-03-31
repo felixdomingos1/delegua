@@ -1460,7 +1460,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         const variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
-        if (objeto instanceof ObjetoDeleguaClasse) {
+        // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido, 
+        // então testamos também o nome do construtor.
+        if (objeto instanceof ObjetoDeleguaClasse || objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return objeto.obter(expressao.simbolo) || null;
         }
 
