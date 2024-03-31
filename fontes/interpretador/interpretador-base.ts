@@ -759,7 +759,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
             }
 
-            if (entidadeChamada instanceof Chamavel) {
+            // Por algum motivo misterioso, `entidadeChamada instanceof Chamavel` dá `false` em Liquido, 
+            // mesmo que esteja tudo certo com `DeleguaFuncao`,
+            // então precisamos testar o nome do construtor também.
+            if (entidadeChamada instanceof Chamavel || entidadeChamada.constructor.name === 'DeleguaFuncao') {
                 const retornoEntidadeChamada = await entidadeChamada.chamar(this, argumentos);
                 return retornoEntidadeChamada;
             }
