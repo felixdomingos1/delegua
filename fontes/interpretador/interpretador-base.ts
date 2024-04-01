@@ -1457,7 +1457,16 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @returns O resultado da execução.
      */
     async visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> {
-        const variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
+        let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
+
+        // Este caso acontece quando há encadeamento de métodos. 
+        // Por exemplo, `objeto1.metodo1().metodo2()`.
+        // Como `RetornoQuebra` também possui `valor`, precisamos extrair o 
+        // valor dele primeiro.
+        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+            variavelObjeto = variavelObjeto.valor;
+        }
+
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
         // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido, 
