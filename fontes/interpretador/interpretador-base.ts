@@ -1372,7 +1372,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
-        if (!(objeto instanceof ObjetoDeleguaClasse) && objeto.constructor !== Object) {
+        if (objeto.constructor.name !== 'ObjetoDeleguaClasse' && objeto.constructor !== Object) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
                     expressao.objeto.nome,
@@ -1383,7 +1383,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         const valor = await this.avaliar(expressao.valor);
-        if (objeto instanceof ObjetoDeleguaClasse) {
+        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
             objeto.definir(expressao.nome, valor);
             return valor;
         } else if (objeto.constructor === Object) {
