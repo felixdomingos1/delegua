@@ -147,6 +147,10 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
         return this.simbolos[this.atual];
     }
 
+    simboloAnterior(): SimboloInterface {
+        return this.simbolos[this.atual - 1];
+    }
+
     estaNoFinal(): boolean {
         return this.atual === this.simbolos.length;
     }
@@ -316,7 +320,29 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             case tiposDeSimbolos.TIPO:
                 this.avancarEDevolverAnterior();
                 this.consumir(tiposDeSimbolos.DE, "Esperado 'de' após 'tipo'.");
-                const _expressao = this.expressao() as any;
+                let _expressao;
+                if (this.verificarSeSimboloAtualEIgualA(
+                    tiposDeSimbolos.ESCREVA,
+                    tiposDeSimbolos.LEIA,
+                    tiposDeSimbolos.FUNCAO,
+                    tiposDeSimbolos.FUNÇÃO,
+                    tiposDeSimbolos.SE,
+                    tiposDeSimbolos.ENQUANTO,
+                    tiposDeSimbolos.PARA,
+                    tiposDeSimbolos.RETORNA,
+                    tipoDeDadosDelegua.INTEIRO,
+                    tipoDeDadosDelegua.TEXTO,
+                    tipoDeDadosDelegua.VETOR,
+                    tipoDeDadosDelegua.LOGICO,
+                    tipoDeDadosDelegua.LÓGICO,
+                    tipoDeDadosDelegua.VAZIO,
+                )
+                ) {
+                    _expressao = this.simboloAnterior()
+                } else {
+                    _expressao = this.expressao() as any;
+                }
+
                 return new TipoDe(
                     this.hashArquivo,
                     simboloAtual,
@@ -329,7 +355,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
                 let eParExpressaoRegular =
                     this.simbolos.filter((l) => l.linha === linhaAtual && l.tipo === tiposDeSimbolos.EXPRESSAO_REGULAR)
                         .length %
-                        2 ===
+                    2 ===
                     0;
                 if (eParExpressaoRegular) {
                     this.avancarEDevolverAnterior();
