@@ -251,6 +251,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return inferirTipoVariavel(tipoDe?.valores || tipoDe);
     }
 
+    // TODO: Depreciado. Priorizar `visitarExpressaoTipoDe`.
     async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
         throw new Error('Método não implementado.');
     }
@@ -760,7 +761,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
             }
 
-            if (entidadeChamada instanceof Chamavel) {
+            // Por algum motivo misterioso, `entidadeChamada instanceof Chamavel` dá `false` em Liquido, 
+            // mesmo que esteja tudo certo com `DeleguaFuncao`,
+            // então precisamos testar o nome do construtor também.
+            if (entidadeChamada instanceof Chamavel || entidadeChamada.constructor.name === 'DeleguaFuncao') {
                 const retornoEntidadeChamada = await entidadeChamada.chamar(this, argumentos);
                 return retornoEntidadeChamada;
             }
@@ -1369,7 +1373,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
-        if (!(objeto instanceof ObjetoDeleguaClasse) && objeto.constructor !== Object) {
+        if (objeto.constructor.name !== 'ObjetoDeleguaClasse' && objeto.constructor !== Object) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
                     expressao.objeto.nome,
@@ -1380,7 +1384,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         const valor = await this.avaliar(expressao.valor);
-        if (objeto instanceof ObjetoDeleguaClasse) {
+        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
             objeto.definir(expressao.nome, valor);
             return valor;
         } else if (objeto.constructor === Object) {
@@ -1454,10 +1458,21 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @returns O resultado da execução.
      */
     async visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> {
-        const variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
+        let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
+
+        // Este caso acontece quando há encadeamento de métodos. 
+        // Por exemplo, `objeto1.metodo1().metodo2()`.
+        // Como `RetornoQuebra` também possui `valor`, precisamos extrair o 
+        // valor dele primeiro.
+        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+            variavelObjeto = variavelObjeto.valor;
+        }
+
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
-        if (objeto instanceof ObjetoDeleguaClasse) {
+        // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido, 
+        // então testamos também o nome do construtor.
+        if (objeto instanceof ObjetoDeleguaClasse || objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return objeto.obter(expressao.simbolo) || null;
         }
 
