@@ -9,3 +9,5 @@ coverage/
 dist/
 docs/
 node_modules/
+
+.vscode/settings.json
