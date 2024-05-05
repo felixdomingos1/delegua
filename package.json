@@ -5,7 +5,8 @@
     "main": "index.js",
     "types": "index.d.ts",
     "scripts": {
-        "empacotar": "yarn rimraf ./dist && tsc && yarn copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && yarn copyfiles -V ./package.json ./dist/bin && yarn copyfiles -V ./README.md ./dist",
+        "copiar-arquivos-pacote": "yarn copyfiles -V ./bin/delegua ./bin/delegua.cmd ./dist && yarn copyfiles -V ./package.json ./dist/bin && yarn copyfiles -V ./README.md ./dist",
+        "empacotar": "yarn rimraf ./dist && tsc && yarn umd && yarn copiar-arquivos-pacote",
         "gerar-documentacao-tecnica": "typedoc --out docs fontes/index.ts",
         "publicar-docs": "yarn gerar-documentacao-tecnica && copyfiles -V ./recursos/**/* ./docs && gh-pages -d docs",
         "publicar-npm": "npm publish ./dist --access public",
@@ -14,7 +15,8 @@
         "observar-testes-unitarios": "jest --watchAll",
         "observar-testes-unitarios-com-coverage": "jest --coverage --watchAll",
         "lint": "eslint . --ext .ts",
-        "deixar-codigo-bonito": "prettier --config .prettierrc --write fontes/**/*.ts"
+        "deixar-codigo-bonito": "prettier --config .prettierrc --write fontes/**/*.ts",
+        "umd": "yarn rollup fontes/index.ts --config rollup.config.ts --configPlugin @rollup/plugin-typescript"
     },
     "repository": {
         "type": "git",
@@ -54,6 +56,11 @@
     "homepage": "https://github.com/DesignLiquido/delegua#readme",
     "devDependencies": {
         "@babel/preset-env": "^7.20.2",
+        "@rollup/plugin-babel": "^6.0.4",
+        "@rollup/plugin-commonjs": "^25.0.7",
+        "@rollup/plugin-node-resolve": "^15.2.3",
+        "@rollup/plugin-terser": "^0.4.4",
+        "@rollup/plugin-typescript": "^11.1.6",
         "@types/esprima": "^4.0.3",
         "@types/estree": "^1.0.0",
         "@types/jest": "^29.4.0",
@@ -72,6 +79,8 @@
         "prettier": "^2.8.1",
         "release-it": "^15.5.1",
         "rimraf": "^3.0.2",
+        "rollup": "^4.17.2",
+        "rollup-plugin-polyfill-node": "^0.13.0",
         "ts-jest": "^29.0.5",
         "ts-node": "^10.9.1",
         "typedoc": "^0.23.22",

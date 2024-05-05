@@ -18,6 +18,7 @@
         "dist/**/*",
         "jest.config.ts",
         "node_modules",
+        "rollup.config.ts",
         "testes"
     ]
 }
