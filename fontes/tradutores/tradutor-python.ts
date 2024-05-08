@@ -534,6 +534,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
     dicionarioDeclaracoes = {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
         Classe: this.traduzirDeclaracaoClasse.bind(this),
+        Comentario: this.traduzirConstrutoComentario.bind(this),
         Const: this.traduzirDeclaracaoConst.bind(this),
         Continua: () => 'continue',
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),

@@ -677,6 +677,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
         Classe: this.traduzirDeclaracaoClasse.bind(this),
         Const: this.traduzirDeclaracaoConst.bind(this),
+        Comentario: this.traduzirConstrutoComentario.bind(this),
         Continua: () => 'continue',
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
         Escolha: this.traduzirDeclaracaoEscolha.bind(this),

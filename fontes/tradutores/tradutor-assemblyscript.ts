@@ -694,6 +694,7 @@ export class TradutorAssemblyScript {
     dicionarioDeclaracoes = {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
+        Comentario: this.traduzirConstrutoComentario.bind(this),
         Continua: () => 'continue',
         Escolha: this.traduzirDeclaracaoEscolha.bind(this),
         Expressao: this.traduzirDeclaracaoExpressao.bind(this),

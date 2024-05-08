@@ -543,5 +543,20 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/finally:/i);
             expect(resultado).toMatch(/print\('Ocorrendo exceção ou não, eu sempre executo'\)/i);
         });
+
+        it('Comentários', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    '// Isto é um comentário',
+                    'escreva("Código após comentário.");'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toContain('# Isto é um comentário');
+        });
     });
 });

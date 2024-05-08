@@ -222,5 +222,20 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/console\.log\('Olá'\)/i);
                 expect(resultado).toMatch(/a\(1, 2\)/i);
             });
+
+            it('Comentários', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        '// Isto é um comentário',
+                        'escreva("Código após comentário.");'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toContain('// Isto é um comentário');
+            });
         })
     })
