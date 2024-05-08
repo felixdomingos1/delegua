@@ -6,6 +6,7 @@ import {
     Atribuir,
     Binario,
     Chamada,
+    Comentario,
     DefinirValor,
     FuncaoConstruto,
     Isto,
@@ -196,6 +197,21 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             resultado = resultado.slice(0, -2);
         }
         resultado += ')';
+        return resultado;
+    }
+
+    traduzirConstrutoComentario(comentario: Comentario): string {
+        let resultado = '';
+        if (comentario.multilinha) {
+            resultado += `/*`;
+            for (let linhaComentario of (comentario.conteudo as string[])) {
+                resultado += `${linhaComentario}\n`;
+            }
+            resultado += `*/`;
+        } else {
+            resultado += `// ${comentario.conteudo as string}`;
+        }
+
         return resultado;
     }
 
@@ -645,6 +661,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
         Chamada: this.traduzirConstrutoChamada.bind(this),
+        Comentario: this.traduzirConstrutoComentario.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',

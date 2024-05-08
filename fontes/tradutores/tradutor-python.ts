@@ -4,6 +4,7 @@ import {
     Atribuir,
     Binario,
     Chamada,
+    Comentario,
     DefinirValor,
     Isto,
     Literal,
@@ -32,11 +33,11 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 export class TradutorPython implements TradutorInterface<Declaracao> {
     indentacao: number = 0;
 
-    traduzirNomeVariavel(variavel: string): string {
+    protected traduzirNomeVariavel(variavel: string): string {
         return variavel.replace(/\.?([A-Z]+)/g, (x, y) => '_' + y.toLowerCase()).replace(/^_/, '');
     }
 
-    traduzirSimboloOperador(operador: SimboloInterface): string {
+    protected traduzirSimboloOperador(operador: SimboloInterface): string {
         switch (operador.tipo) {
             case tiposDeSimbolos.ADICAO:
                 return '+';
@@ -79,7 +80,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         }
     }
 
-    traduzirFuncoesNativas(metodo: string): string {
+    protected traduzirFuncoesNativas(metodo: string): string {
         switch (metodo.toLowerCase()) {
             case 'adicionar':
             case 'empilhar':
@@ -111,7 +112,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         }
     }
 
-    logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {
+    protected logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {
         let resultado = '';
         this.indentacao += 4;
 
@@ -134,59 +135,6 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    traduzirDeclaracaoTente(declaracaoTente: Tente): string {
-        let resultado = 'try:\n';
-        this.indentacao += 4;
-        resultado += ' '.repeat(this.indentacao);
-
-        for (let condicao of declaracaoTente.caminhoTente) {
-            resultado += this.dicionarioDeclaracoes[condicao.constructor.name](condicao) + '\n';
-            resultado += ' '.repeat(this.indentacao);
-        }
-
-        if (declaracaoTente.caminhoPegue !== null) {
-            resultado += '\nexcept:\n';
-            resultado += ' '.repeat(this.indentacao);
-            if (Array.isArray(declaracaoTente.caminhoPegue)) {
-                for (let declaracao of declaracaoTente.caminhoPegue) {
-                    resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
-                }
-            } else {
-                for (let corpo of declaracaoTente.caminhoPegue.corpo) {
-                    resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
-                }
-            }
-
-            resultado += ' '.repeat(this.indentacao);
-        }
-        if (declaracaoTente.caminhoFinalmente !== null) {
-            resultado += '\nfinally:\n';
-            resultado += ' '.repeat(this.indentacao);
-            for (let finalmente of declaracaoTente.caminhoFinalmente) {
-                resultado += this.dicionarioDeclaracoes[finalmente.constructor.name](finalmente) + '\n';
-            }
-        }
-
-        return resultado;
-    }
-
-    traduzirConstrutoLogico(logico: Logico): string {
-        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
-        let operador = this.traduzirSimboloOperador(logico.operador);
-        let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
-
-        return `${esquerda} ${operador} ${direita}`;
-    }
-
-    traduzirConstrutoLiteral(literal: Literal): string {
-        if (typeof literal.valor === 'string') return `'${literal.valor}'`;
-        if (typeof literal.valor === 'boolean') {
-            return literal.valor ? 'True' : 'False';
-        }
-        if (!literal.valor) return 'None';
-        return literal.valor;
-    }
-
     trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodoOuPropriedade): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
@@ -202,28 +150,13 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return `self.${acessoMetodo.simbolo.lexema}`;
     }
 
-    traduzirDeclaracaoEscreva(declaracaoEscreva: Escreva): string {
-        let resultado = 'print(';
-        for (const argumento of declaracaoEscreva.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
-            resultado += valor + ', ';
-        }
-
-        resultado = resultado.slice(0, -2);
-        resultado += ')';
-        return resultado;
+    traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
+        return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
     }
 
-    traduzirDeclaracaoLeia(declaracaoLeia: Leia) {
-        let resultado = 'input(';
-        for (const argumento of declaracaoLeia.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
-            resultado += valor + ', ';
-        }
-
-        resultado = resultado.slice(0, -2);
-        resultado += ')';
-
+    traduzirConstrutoAtribuir(atribuir: Atribuir): string {
+        let resultado = atribuir.simbolo.lexema;
+        resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
         return resultado;
     }
 
@@ -243,21 +176,103 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao): string {
-        let resultado = 'def ';
-        resultado += declaracaoFuncao.simbolo.lexema + '(';
+    traduzirConstrutoChamada(chamada: Chamada): string {
+        let resultado = '';
 
-        for (const parametro of declaracaoFuncao.funcao.parametros) {
-            resultado += parametro.nome.lexema + ', ';
+        const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](
+            chamada.entidadeChamada
+        )}`;
+
+        resultado += retorno;
+
+        if (!resultado.includes('in ') && !resultado.includes('len') && !resultado.includes('pop(')) {
+            resultado += '(';
         }
 
-        if (declaracaoFuncao.funcao.parametros.length > 0) {
+        if (!resultado.includes('len(')) {
+            for (let parametro of chamada.argumentos) {
+                const parametroTratado = this.dicionarioConstrutos[parametro.constructor.name](parametro);
+                if (resultado.includes('in ') || resultado.includes('len')) {
+                    resultado = `${parametroTratado} ${resultado}`;
+                } else {
+                    resultado += parametroTratado + ', ';
+                }
+            }
+
+            if (chamada.argumentos.length > 0 && !resultado.includes('in ') && !resultado.includes('len')) {
+                resultado = resultado.slice(0, -2);
+            }
+
+            if (!resultado.includes(')') && !resultado.includes('in ')) {
+                resultado += ')';
+            }
+        }
+
+        return resultado;
+    }
+
+    traduzirConstrutoComentario(comentario: Comentario): string {
+        let resultado = '';
+        if (comentario.multilinha) {
+            resultado += `'''`;
+            for (let linhaComentario of (comentario.conteudo as string[])) {
+                resultado += `${linhaComentario}\n`;
+            }
+            resultado += `'''`;
+        } else {
+            resultado += `# ${comentario.conteudo as string}`;
+        }
+
+        return resultado;
+    }
+
+    traduzirConstrutoDefinirValor(definirValor: DefinirValor): string {
+        let resultado = '';
+        if (definirValor.objeto instanceof Isto) {
+            resultado = 'self.' + definirValor.nome.lexema + ' = ';
+        }
+
+        resultado += definirValor.valor.simbolo.lexema;
+        return resultado;
+    }
+
+    traduzirConstrutoLiteral(literal: Literal): string {
+        if (typeof literal.valor === 'string') return `'${literal.valor}'`;
+        if (typeof literal.valor === 'boolean') {
+            return literal.valor ? 'True' : 'False';
+        }
+        if (!literal.valor) return 'None';
+        return literal.valor;
+    }
+
+    traduzirConstrutoLogico(logico: Logico): string {
+        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
+        let operador = this.traduzirSimboloOperador(logico.operador);
+        let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
+
+        return `${esquerda} ${operador} ${direita}`;
+    }
+
+    traduzirConstrutoVariavel(variavel: Variavel): string {
+        return variavel.simbolo.lexema;
+    }
+
+    traduzirConstrutoVetor(vetor: Vetor): string {
+        if (!vetor.valores.length) {
+            return '[]';
+        }
+
+        let resultado = '[';
+
+        for (let valor of vetor.valores) {
+            resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)}, `;
+        }
+        if (vetor.valores.length > 0) {
             resultado = resultado.slice(0, -2);
         }
 
-        resultado += '):';
+        resultado += ']';
 
-        resultado += this.logicaComumBlocoEscopo(declaracaoFuncao.funcao.corpo);
         return resultado;
     }
 
@@ -310,7 +325,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    logicaTraducaoMetodoClasse(metodoClasse: FuncaoDeclaracao): string {
+    protected logicaTraducaoMetodoClasse(metodoClasse: FuncaoDeclaracao): string {
         this.indentacao += 4;
         let resultado = ' '.repeat(this.indentacao);
         let temContrutor = metodoClasse.simbolo.lexema === 'construtor';
@@ -340,6 +355,10 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
+    traduzirDeclaracaoBloco(declaracaoBloco: Bloco): string {
+        return this.logicaComumBlocoEscopo(declaracaoBloco.declaracoes);
+    }
+
     traduzirDeclaracaoClasse(declaracaoClasse: Classe): string {
         let resultado = 'class ';
 
@@ -351,98 +370,6 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
 
         for (let metodo of declaracaoClasse.metodos) {
             resultado += this.logicaTraducaoMetodoClasse(metodo);
-        }
-
-        return resultado;
-    }
-
-    traduzirConstrutoChamada(chamada: Chamada): string {
-        let resultado = '';
-
-        const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](
-            chamada.entidadeChamada
-        )}`;
-
-        resultado += retorno;
-
-        if (!resultado.includes('in ') && !resultado.includes('len') && !resultado.includes('pop(')) {
-            resultado += '(';
-        }
-
-        if (!resultado.includes('len(')) {
-            for (let parametro of chamada.argumentos) {
-                const parametroTratado = this.dicionarioConstrutos[parametro.constructor.name](parametro);
-                if (resultado.includes('in ') || resultado.includes('len')) {
-                    resultado = `${parametroTratado} ${resultado}`;
-                } else {
-                    resultado += parametroTratado + ', ';
-                }
-            }
-
-            if (chamada.argumentos.length > 0 && !resultado.includes('in ') && !resultado.includes('len')) {
-                resultado = resultado.slice(0, -2);
-            }
-
-            if (!resultado.includes(')') && !resultado.includes('in ')) {
-                resultado += ')';
-            }
-        }
-
-        return resultado;
-    }
-
-    traduzirDeclaracaoRetorna(declaracaoRetorna: Retorna): string {
-        let resultado = 'return ';
-        const nomeConstrutor = declaracaoRetorna.valor.constructor.name;
-        return (resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna?.valor));
-    }
-
-    traduzirConstrutoVetor(vetor: Vetor): string {
-        if (!vetor.valores.length) {
-            return '[]';
-        }
-
-        let resultado = '[';
-
-        for (let valor of vetor.valores) {
-            resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)}, `;
-        }
-        if (vetor.valores.length > 0) {
-            resultado = resultado.slice(0, -2);
-        }
-
-        resultado += ']';
-
-        return resultado;
-    }
-
-    traduzirConstrutoDefinirValor(definirValor: DefinirValor): string {
-        let resultado = '';
-        if (definirValor.objeto instanceof Isto) {
-            resultado = 'self.' + definirValor.nome.lexema + ' = ';
-        }
-
-        resultado += definirValor.valor.simbolo.lexema;
-        return resultado;
-    }
-
-    traduzirDeclaracaoVar(declaracaoVar: Var): string {
-        let resultado = '';
-        resultado += this.traduzirNomeVariavel(declaracaoVar.simbolo.lexema);
-        resultado += ' = ';
-        const inicializador = declaracaoVar.inicializador;
-        if (inicializador) {
-            if (this.dicionarioConstrutos[inicializador.constructor.name]) {
-                resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
-                    declaracaoVar.inicializador
-                );
-            } else {
-                resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](
-                    declaracaoVar.inicializador
-                );
-            }
-        } else {
-            resultado += 'None';
         }
 
         return resultado;
@@ -470,6 +397,53 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
+    traduzirDeclaracaoEscreva(declaracaoEscreva: Escreva): string {
+        let resultado = 'print(';
+        for (const argumento of declaracaoEscreva.argumentos) {
+            const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            resultado += valor + ', ';
+        }
+
+        resultado = resultado.slice(0, -2);
+        resultado += ')';
+        return resultado;
+    }
+
+    traduzirDeclaracaoExpressao(declaracaoExpressao: Expressao): string {
+        return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
+    }
+
+    traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao): string {
+        let resultado = 'def ';
+        resultado += declaracaoFuncao.simbolo.lexema + '(';
+
+        for (const parametro of declaracaoFuncao.funcao.parametros) {
+            resultado += parametro.nome.lexema + ', ';
+        }
+
+        if (declaracaoFuncao.funcao.parametros.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+
+        resultado += '):';
+
+        resultado += this.logicaComumBlocoEscopo(declaracaoFuncao.funcao.corpo);
+        return resultado;
+    }
+
+    traduzirDeclaracaoLeia(declaracaoLeia: Leia) {
+        let resultado = 'input(';
+        for (const argumento of declaracaoLeia.argumentos) {
+            const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            resultado += valor + ', ';
+        }
+
+        resultado = resultado.slice(0, -2);
+        resultado += ')';
+
+        return resultado;
+    }
+
     traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): string {
         let resultado = `for ${declaracaoParaCada.nomeVariavelIteracao} in `;
         resultado +=
@@ -479,26 +453,68 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    traduzirConstrutoAtribuir(atribuir: Atribuir): string {
-        let resultado = atribuir.simbolo.lexema;
-        resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
+    traduzirDeclaracaoRetorna(declaracaoRetorna: Retorna): string {
+        let resultado = 'return ';
+        const nomeConstrutor = declaracaoRetorna.valor.constructor.name;
+        return (resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna?.valor));
+    }
+
+    traduzirDeclaracaoTente(declaracaoTente: Tente): string {
+        let resultado = 'try:\n';
+        this.indentacao += 4;
+        resultado += ' '.repeat(this.indentacao);
+
+        for (let condicao of declaracaoTente.caminhoTente) {
+            resultado += this.dicionarioDeclaracoes[condicao.constructor.name](condicao) + '\n';
+            resultado += ' '.repeat(this.indentacao);
+        }
+
+        if (declaracaoTente.caminhoPegue !== null) {
+            resultado += '\nexcept:\n';
+            resultado += ' '.repeat(this.indentacao);
+            if (Array.isArray(declaracaoTente.caminhoPegue)) {
+                for (let declaracao of declaracaoTente.caminhoPegue) {
+                    resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
+                }
+            } else {
+                for (let corpo of declaracaoTente.caminhoPegue.corpo) {
+                    resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
+                }
+            }
+
+            resultado += ' '.repeat(this.indentacao);
+        }
+        if (declaracaoTente.caminhoFinalmente !== null) {
+            resultado += '\nfinally:\n';
+            resultado += ' '.repeat(this.indentacao);
+            for (let finalmente of declaracaoTente.caminhoFinalmente) {
+                resultado += this.dicionarioDeclaracoes[finalmente.constructor.name](finalmente) + '\n';
+            }
+        }
+
         return resultado;
     }
 
-    traduzirConstrutoVariavel(variavel: Variavel): string {
-        return variavel.simbolo.lexema;
-    }
+    traduzirDeclaracaoVar(declaracaoVar: Var): string {
+        let resultado = '';
+        resultado += this.traduzirNomeVariavel(declaracaoVar.simbolo.lexema);
+        resultado += ' = ';
+        const inicializador = declaracaoVar.inicializador;
+        if (inicializador) {
+            if (this.dicionarioConstrutos[inicializador.constructor.name]) {
+                resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
+                    declaracaoVar.inicializador
+                );
+            } else {
+                resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](
+                    declaracaoVar.inicializador
+                );
+            }
+        } else {
+            resultado += 'None';
+        }
 
-    traduzirDeclaracaoExpressao(declaracaoExpressao: Expressao): string {
-        return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
-    }
-
-    traduzirDeclaracaoBloco(declaracaoBloco: Bloco): string {
-        return this.logicaComumBlocoEscopo(declaracaoBloco.declaracoes);
-    }
-
-    traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
-        return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
+        return resultado;
     }
 
     dicionarioConstrutos = {
@@ -507,6 +523,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
         Chamada: this.traduzirConstrutoChamada.bind(this),
+        Comentario: this.traduzirConstrutoComentario.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),

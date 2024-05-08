@@ -6,6 +6,7 @@ import {
     Atribuir,
     Binario,
     Chamada,
+    Comentario,
     DefinirValor,
     FuncaoConstruto,
     Isto,
@@ -589,6 +590,21 @@ export class TradutorAssemblyScript {
         return resultado;
     }
 
+    traduzirConstrutoComentario(comentario: Comentario): string {
+        let resultado = '';
+        if (comentario.multilinha) {
+            resultado += `/*`;
+            for (let linhaComentario of (comentario.conteudo as string[])) {
+                resultado += `${linhaComentario}\n`;
+            }
+            resultado += `*/`;
+        } else {
+            resultado += `// ${comentario.conteudo as string}`;
+        }
+
+        return resultado;
+    }
+
     traduzirConstrutoBinario(binario: Binario): string {
         let resultado = '';
         if (binario.esquerda.constructor.name === 'Agrupamento')
@@ -663,6 +679,7 @@ export class TradutorAssemblyScript {
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
         Chamada: this.traduzirConstrutoChamada.bind(this),
+        Comentario: this.traduzirConstrutoComentario.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',
