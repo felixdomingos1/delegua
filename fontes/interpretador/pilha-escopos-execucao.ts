@@ -5,6 +5,7 @@ import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { Simbolo } from '../lexador';
 import { TipoInferencia, inferirTipoVariavel } from './inferenciador';
+
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 
 export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
@@ -44,8 +45,10 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         switch (tipo) {
             case 'inteiro':
                 return parseInt(valor);
+            case 'logico':
             case 'lógico':
                 return Boolean(valor);
+            case 'numero':
             case 'número':
                 return Number(valor);
             case 'texto':
