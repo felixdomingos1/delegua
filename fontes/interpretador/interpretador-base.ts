@@ -43,11 +43,13 @@ import {
     AcessoIndiceVariavel,
     AcessoMetodoOuPropriedade,
     Agrupamento,
+    AtribuicaoPorIndice,
     Atribuir,
     Binario,
     Chamada,
     Comentario,
     Construto,
+    DefinirValor,
     Dicionario,
     ExpressaoRegular,
     FimPara,
@@ -1261,7 +1263,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return new DeleguaFuncao(null, corpoDeclaracao);
     }
 
-    async visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
+    async visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> {
         const promises = await Promise.all([
             this.avaliar(expressao.objeto),
             this.avaliar(expressao.indice),
@@ -1387,21 +1389,21 @@ export class InterpretadorBase implements InterpretadorInterface {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
                     expressao.entidadeChamada.nome,
-                    'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
+                    'Somente listas, dicionários, classes e objetos podem ter seus valores indexados.',
                     expressao.linha
                 )
             );
         }
     }
 
-    async visitarExpressaoDefinirValor(expressao: any): Promise<any> {
+    async visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
         if (objeto.constructor.name !== 'ObjetoDeleguaClasse' && objeto.constructor !== Object) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
-                    expressao.objeto.nome,
+                    expressao.nome,
                     'Somente instâncias e dicionários podem possuir campos.',
                     expressao.linha
                 )
@@ -1412,8 +1414,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
             objeto.definir(expressao.nome, valor);
             return valor;
-        } else if (objeto.constructor === Object) {
-            objeto[expressao.simbolo.lexema] = valor;
+        }
+        
+        if (objeto.constructor === Object) {
+            objeto[expressao.nome.lexema] = valor;
         }
     }
 
