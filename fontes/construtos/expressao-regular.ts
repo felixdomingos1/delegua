@@ -19,7 +19,7 @@ export class ExpressaoRegular<TTipoSimbolo extends string = string> implements C
         this.simbolo = simbolo;
     }
 
-    async aceitar(visitante: VisitanteComumInterface): Promise<RegExp> {
+    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return Promise.resolve(visitante.visitarExpressaoExpressaoRegular(this));
     }
 }

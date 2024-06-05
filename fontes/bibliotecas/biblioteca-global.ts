@@ -2,7 +2,7 @@ import { ErroEmTempoDeExecucao } from '../excecoes';
 import { ObjetoDeleguaClasse } from '../estruturas/objeto-delegua-classe';
 import { FuncaoPadrao } from '../estruturas/funcao-padrao';
 import { DeleguaClasse } from '../estruturas/delegua-classe';
-import { VisitanteComumInterface, VariavelInterface } from '../interfaces';
+import { VariavelInterface } from '../interfaces';
 import { InterpretadorInterface } from "../interfaces";
 import { DeleguaFuncao } from '../estruturas';
 import { Deceto, Dupla, Noneto, Octeto, Quarteto, Quinteto, Septeto, Sexteto, Trio, Tupla } from '../construtos';

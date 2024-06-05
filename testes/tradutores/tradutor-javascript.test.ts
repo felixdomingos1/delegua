@@ -981,5 +981,26 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toBeTruthy();
             expect(resultado).toContain('// Isto é um comentário');
         });
+
+        it('Métodos que viram propriedades em JS', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'funcao somarVetor(numeros) {',
+                    '    para var i = 1; i < numeros.tamanho(); i++ {',
+                    '        numeros[i] = numeros[i - 1] + numeros[i]',
+                    '    }',
+                    '    escreva(numeros)',
+                    '}',
+                    'var lista = [3, 1, 2, 10, 1]',
+                    'somarVetor(lista)'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toContain('numeros.length;');
+        });
     });
 });
