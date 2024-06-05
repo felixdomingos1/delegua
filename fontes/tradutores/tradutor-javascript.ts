@@ -189,14 +189,23 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         } else {
             resultado += retorno;
         }
-        resultado += '(';
+
+        if (!retorno.endsWith('length')) {
+            resultado += '(';
+        }
+        
         for (let parametro of chamada.argumentos) {
             resultado += this.dicionarioConstrutos[parametro.constructor.name](parametro) + ', ';
         }
+
         if (chamada.argumentos.length > 0) {
             resultado = resultado.slice(0, -2);
         }
-        resultado += ')';
+
+        if (!retorno.endsWith('length')) {
+            resultado += ')';
+        }
+        
         return resultado;
     }
 
@@ -543,7 +552,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    trazudirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodoOuPropriedade): string {
+    traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodoOuPropriedade): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
             return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema)}`;
@@ -655,7 +664,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
     dicionarioConstrutos = {
         AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
-        AcessoMetodoOuPropriedade: this.trazudirConstrutoAcessoMetodo.bind(this),
+        AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
