@@ -80,7 +80,7 @@ export interface VisitanteComumInterface {
     visitarDeclaracaoSe(declaracao: Se): Promise<any> | void;
     visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> | void;
     visitarDeclaracaoTente(declaracao: Tente): Promise<any> | void;
-    visitarDeclaracaoVar(declaracao: Var): Promise<any | void>;
+    visitarDeclaracaoVar(declaracao: Var): Promise<any> | void;
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> | void;
     visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> | void;
     visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> | void;

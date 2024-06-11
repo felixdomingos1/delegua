@@ -3,14 +3,25 @@ import { Construto } from './construto';
 
 /**
  * Binário é uma estrutura com um operador e dois operandos: esquerda e direita.
- * Implementa as seguintes operações:
+ * Implementa as seguintes operações para Delégua e todos os dialetos:
  *
- * - `+` (Adição) e `+=` (Adição com Atribuição)
- * - `-` (Subtração) e `-=` (Subtração com Atribuição)
- * - `*` (Multiplicação) e `*=` (Multiplicação com Atribuição)
- * - `/` (Divisão) e `/=` (Divisão com Atribuição)
- * - `%` (Módulo) e `%=` (Módulo com Atribuição)
- * - `**` (Exponenciação)
+ * - `+` (Adição);
+ * - `-` (Subtração);
+ * - `*` (Multiplicação);
+ * - `/` (Divisão);
+ * - `%` (Módulo);
+ * 
+ * Algumas outras operações podem ser suportadas de dialeto para dialeto,
+ * como por exemplo:
+ * 
+ * - `+=` (Adição com Atribuição);
+ * - `-=` (Subtração com Atribuição);
+ * - `*=` (Multiplicação com Atribuição);
+ * - `/=` (Divisão com Atribuição);
+ * - `%=` (Módulo com Atribuição);
+ * - `**` (Exponenciação);
+ * - `::` (Concatenação);
+ * - `\` (Divisão inteira).
  */
 export class Binario<TTipoSimbolo extends string = string> implements Construto {
     linha: number;

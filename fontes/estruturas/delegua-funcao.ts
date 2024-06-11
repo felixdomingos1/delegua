@@ -1,7 +1,7 @@
 import { Chamavel } from './chamavel';
 import { EspacoVariaveis } from '../espaco-variaveis';
 
-import { InterpretadorInterface, VariavelInterface, VisitanteComumInterface } from '../interfaces';
+import { VisitanteComumInterface } from '../interfaces';
 import { RetornoQuebra } from '../quebras';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 import { FuncaoConstruto } from '../construtos';
@@ -41,7 +41,7 @@ export class DeleguaFuncao extends Chamavel {
      * @returns {string} A representação da função como texto.
      */
     paraTexto(): string {
-        if (this.nome === null) return '<função>';
+        if (!this.nome) return '<função>';
         let resultado = `<função ${this.nome}`;
         let parametros = '';
         let retorno = '';
@@ -82,6 +82,18 @@ export class DeleguaFuncao extends Chamavel {
         return this.paraTexto();
     }
 
+    private resolverParametrosEspalhados(argumentos: Array<ArgumentoInterface>, indiceArgumentoAtual: number) {
+        const argumentosResolvidos = [];
+        for (let i = indiceArgumentoAtual; i < argumentos.length; indiceArgumentoAtual++) {
+            const argumentoAtual = argumentos[i];
+            argumentosResolvidos.push(
+                argumentoAtual && argumentoAtual.hasOwnProperty('valor') ? argumentoAtual.valor : argumentoAtual
+            );
+        }
+
+        return argumentosResolvidos;
+    }
+
     async chamar(visitante: VisitanteComumInterface, argumentos: Array<ArgumentoInterface>): Promise<any> {
         const ambiente = new EspacoVariaveis();
         const parametros = this.declaracao.parametros || [];
@@ -91,13 +103,7 @@ export class DeleguaFuncao extends Chamavel {
 
             const nome = parametro['nome'].lexema;
             if (parametro.abrangencia === 'multiplo') {
-                const argumentosResolvidos = [];
-                for (let indiceArgumentoAtual = i; indiceArgumentoAtual < argumentos.length; indiceArgumentoAtual++) {
-                    const argumentoAtual = argumentos[indiceArgumentoAtual];
-                    argumentosResolvidos.push(
-                        argumentoAtual && argumentoAtual.hasOwnProperty('valor') ? argumentoAtual.valor : argumentoAtual
-                    );
-                }
+                const argumentosResolvidos = this.resolverParametrosEspalhados(argumentos, i);
 
                 // TODO: Verificar se `imutavel` é `true` aqui mesmo.
                 ambiente.valores[nome] = { tipo: 'vetor', valor: argumentosResolvidos, imutavel: true };
@@ -118,7 +124,12 @@ export class DeleguaFuncao extends Chamavel {
                 imutavel: false,
             };
 
-            if (this.instancia.classe.dialetoRequerExpansaoPropriedadesEspacoVariaveis) {
+            // TODO: Apenass Potigol usa isso até então.
+            // Estudar mover isso para o dialeto.
+            if (
+                this.instancia.classe.dialetoRequerExpansaoPropriedadesEspacoVariaveis && 
+                this.nome !== 'construtor'
+            ) {
                 for (let [nomeCampo, valorCampo] of Object.entries(this.instancia.propriedades)) {
                     ambiente.valores[nomeCampo] = {
                         valor: valorCampo,

@@ -9,7 +9,6 @@ export * from './binario';
 export * from './chamada';
 export * from './comentario';
 export * from './constante';
-export * from './constante-ou-variavel';
 export * from './construto';
 export * from './decorador';
 export * from './definir-valor';

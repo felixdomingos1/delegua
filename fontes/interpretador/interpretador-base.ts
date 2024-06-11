@@ -496,7 +496,13 @@ export class InterpretadorBase implements InterpretadorInterface {
         return resultado;
     }
 
-    protected eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean {
+    /**
+     * Lógica para verificação de valores iguais, para Delégua e alguns dialetos.
+     * @param esquerda Uma variável.
+     * @param direita Outra variável.
+     * @returns Verdadeiro se são iguais. Falso em caso contrário.
+     */
+    eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean {
         if (esquerda === null && direita === null) return true;
         if (esquerda === null) return false;
         return esquerda === direita;
@@ -1200,7 +1206,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return await this.executarBloco(declaracao.declaracoes);
     }
 
-    protected async avaliacaoDeclaracaoVarOuConst(declaracao: Const | ConstMultiplo | Var | VarMultiplo): Promise<any> {
+    async avaliacaoDeclaracaoVarOuConst(declaracao: Const | ConstMultiplo | Var | VarMultiplo): Promise<any> {
         let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
             valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
