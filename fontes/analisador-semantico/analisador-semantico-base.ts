@@ -55,6 +55,7 @@ import {
     Retorna,
     Sustar,
 } from '../declaracoes';
+import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade, SimboloInterface } from '../interfaces';
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
@@ -65,8 +66,23 @@ import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
  * simplesmente passa por ele (`return Promise.resolve()`).
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
+    diagnosticos: DiagnosticoAnalisadorSemantico[];
     
     abstract analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico;
+
+    adicionarDiagnostico(
+        simbolo: SimboloInterface, 
+        mensagem: string, 
+        severidade: DiagnosticoSeveridade = DiagnosticoSeveridade.ERRO
+    ): void {
+        this.diagnosticos.push({
+            simbolo: simbolo,
+            mensagem: mensagem,
+            hashArquivo: simbolo.hashArquivo,
+            linha: simbolo.linha,
+            severidade: severidade,
+        });
+    }
 
     visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
         return Promise.resolve();

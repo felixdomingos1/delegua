@@ -1359,8 +1359,15 @@ export class InterpretadorBase implements InterpretadorInterface {
                     )
                 );
             }
+
             return objeto[valorIndice];
-        } else if (
+        } 
+
+        if (objeto instanceof Vetor) {
+            return objeto.valores[valorIndice];
+        }
+        
+        if (
             objeto.constructor === Object ||
             objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
@@ -1368,7 +1375,9 @@ export class InterpretadorBase implements InterpretadorInterface {
             objeto instanceof DeleguaModulo
         ) {
             return objeto[valorIndice] || null;
-        } else if (typeof objeto === tipoDeDadosPrimitivos.TEXTO) {
+        } 
+        
+        if (typeof objeto === tipoDeDadosPrimitivos.TEXTO) {
             if (!Number.isInteger(valorIndice)) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
@@ -1390,16 +1399,17 @@ export class InterpretadorBase implements InterpretadorInterface {
                     new ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice fora do tamanho.', expressao.linha)
                 );
             }
+
             return objeto.charAt(valorIndice);
-        } else {
-            return Promise.reject(
-                new ErroEmTempoDeExecucao(
-                    expressao.entidadeChamada.nome,
-                    'Somente listas, dicionários, classes e objetos podem ter seus valores indexados.',
-                    expressao.linha
-                )
-            );
         }
+
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                expressao.entidadeChamada.nome,
+                'Somente listas, dicionários, classes e objetos podem ter seus valores indexados.',
+                expressao.linha
+            )
+        );
     }
 
     async visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> {
@@ -1434,6 +1444,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     /**
      * Executa uma declaração de classe.
+     * Uma variável do tipo `DeleguaClasse` é adicionada à pilha de escopos de execução.
      * @param declaracao A declaração de classe.
      * @returns Sempre retorna nulo, por ser requerido pelo contrato de visita.
      */

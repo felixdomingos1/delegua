@@ -388,7 +388,7 @@ export class AvaliadorSintatico implements AvaliadorSintaticoInterface<SimboloIn
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
-                const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
+                const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome de método ou propriedade após '.'.");
                 expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, expressao, nome);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = this.expressao();
