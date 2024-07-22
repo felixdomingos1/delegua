@@ -6,7 +6,9 @@ import { DeleguaFuncao } from './delegua-funcao';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 
 /**
- * Estrutura de declaração de classe.
+ * Estrutura de declaração de classe. Quando uma declaração de classe é visitada, o que 
+ * vai para a pilha de escopos de execução é esta estrutura. É equivalente ao descritor de
+ * tipo de uma classe.
  */
 export class DeleguaClasse extends Chamavel {
     simboloOriginal: SimboloInterface;
@@ -68,7 +70,7 @@ export class DeleguaClasse extends Chamavel {
     paraTexto(): string {
         let texto = `<classe ${this.simboloOriginal.lexema}`;
         for (let propriedade of this.propriedades) {
-            texto += ` ${propriedade.nome}`;
+            texto += ` ${propriedade.nome.lexema}`;
             if (propriedade.tipo) {
                 texto += `:${propriedade.tipo}`;
             }

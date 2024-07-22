@@ -5,7 +5,7 @@ import { DeleguaClasse } from './delegua-classe';
 /**
  * A instância de uma classe em Delégua.
  * Possui propriedades e métodos. Propriedades são definidas localmente.
- * Métodos são extraídos da definição de classe.
+ * Métodos são extraídos do descritor da classe, uma `DeleguaClasse`.
  */
 export class ObjetoDeleguaClasse {
     classe: DeleguaClasse;

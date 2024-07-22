@@ -1076,6 +1076,30 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Teste de tipo', async () => {
+                    let _saidas = "";
+                    interpretador.funcaoDeRetorno = (saida: string) => {
+                        _saidas += saida;
+                    }
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Artigo {',
+                            '  id: numero',
+                            '  titulo: texto',
+                            '  conteudo: texto',
+                            '}',
+                            'escreva(Artigo)'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas.length).toBeGreaterThan(0);
+                });
             });
 
             describe('Declaração e chamada de funções', () => {
