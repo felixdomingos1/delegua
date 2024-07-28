@@ -32,7 +32,7 @@ import {
 } from '../declaracoes';
 import {
     Chamavel,
-    DeleguaClasse,
+    DescritorTipoClasse,
     DeleguaFuncao,
     ObjetoDeleguaClasse,
     DeleguaModulo,
@@ -698,7 +698,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             return entidadeChamada.declaracao.parametros;
         }
 
-        if (entidadeChamada instanceof DeleguaClasse) {
+        if (entidadeChamada instanceof DescritorTipoClasse) {
             return entidadeChamada.metodos.construtor
                 ? entidadeChamada.metodos.construtor.declaracao.parametros
                 : [];
@@ -1315,7 +1315,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             objeto.constructor === Object ||
             objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
-            objeto instanceof DeleguaClasse ||
+            objeto instanceof DescritorTipoClasse ||
             objeto instanceof DeleguaModulo
         ) {
             objeto[indice] = valor;
@@ -1377,7 +1377,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             objeto.constructor === Object ||
             objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
-            objeto instanceof DeleguaClasse ||
+            objeto instanceof DescritorTipoClasse ||
             objeto instanceof DeleguaModulo
         ) {
             return objeto[valorIndice] || null;
@@ -1454,12 +1454,12 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param declaracao A declaração de classe.
      * @returns Sempre retorna nulo, por ser requerido pelo contrato de visita.
      */
-    async visitarDeclaracaoClasse(declaracao: Classe): Promise<any> {
+    async visitarDeclaracaoClasse(declaracao: Classe): Promise<DescritorTipoClasse> {
         let superClasse = null;
         if (declaracao.superClasse !== null && declaracao.superClasse !== undefined) {
             const variavelSuperClasse: VariavelInterface = await this.avaliar(declaracao.superClasse);
             superClasse = variavelSuperClasse.valor;
-            if (!(superClasse instanceof DeleguaClasse)) {
+            if (!(superClasse instanceof DescritorTipoClasse)) {
                 throw new ErroEmTempoDeExecucao(
                     declaracao.superClasse.nome,
                     'Superclasse precisa ser uma classe.',
@@ -1484,23 +1484,23 @@ export class InterpretadorBase implements InterpretadorInterface {
             metodos[metodoAtual.simbolo.lexema] = funcao;
         }
 
-        const deleguaClasse: DeleguaClasse = new DeleguaClasse(
+        const descritorTipoClasse: DescritorTipoClasse = new DescritorTipoClasse(
             declaracao.simbolo,
             superClasse,
             metodos,
             declaracao.propriedades
         );
 
-        deleguaClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis =
+        descritorTipoClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis =
             this.expandirPropriedadesDeObjetosEmEspacoVariaveis;
-        deleguaClasse.dialetoRequerDeclaracaoPropriedades = this.requerDeclaracaoPropriedades;
+        descritorTipoClasse.dialetoRequerDeclaracaoPropriedades = this.requerDeclaracaoPropriedades;
 
         // TODO: Recolocar isso se for necessário.
         /* if (superClasse !== null) {
             this.ambiente = this.ambiente.enclosing;
         } */
 
-        this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, deleguaClasse);
+        this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, descritorTipoClasse);
         return null;
     }
 

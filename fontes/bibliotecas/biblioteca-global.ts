@@ -1,7 +1,7 @@
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { ObjetoDeleguaClasse } from '../estruturas/objeto-delegua-classe';
 import { FuncaoPadrao } from '../estruturas/funcao-padrao';
-import { DeleguaClasse } from '../estruturas/delegua-classe';
+import { DescritorTipoClasse } from '../estruturas/descritor-tipo-classe';
 import { VariavelInterface } from '../interfaces';
 import { InterpretadorInterface } from "../interfaces";
 import { DeleguaFuncao } from '../estruturas';
@@ -700,7 +700,7 @@ export async function tamanho(
         return Promise.resolve(valorObjeto.valorAridade);
     }
 
-    if (valorObjeto instanceof DeleguaClasse) {
+    if (valorObjeto instanceof DescritorTipoClasse) {
         const metodos = valorObjeto.metodos;
         let tamanho = 0;
 

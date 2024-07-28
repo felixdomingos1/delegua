@@ -1,4 +1,4 @@
-import { DeleguaClasse, DeleguaFuncao } from '../estruturas';
+import { DescritorTipoClasse, DeleguaFuncao } from '../estruturas';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { SimboloInterface, VariavelInterface } from '../interfaces';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
@@ -262,7 +262,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         const ambiente = this.pilha[this.pilha.length - 1].ambiente;
         for (const [nome, corpo] of Object.entries(ambiente.valores)) {
             const corpoValor = corpo.hasOwnProperty('valor') ? corpo.valor : corpo;
-            if (corpoValor instanceof DeleguaClasse) {
+            if (corpoValor instanceof DescritorTipoClasse) {
                 retorno[nome] = corpoValor;
             }
         }

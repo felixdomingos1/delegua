@@ -6,13 +6,13 @@ import { DeleguaFuncao } from './delegua-funcao';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 
 /**
- * Estrutura de declaração de classe. Quando uma declaração de classe é visitada, o que 
- * vai para a pilha de escopos de execução é esta estrutura. É equivalente ao descritor de
- * tipo de uma classe.
+ * Descritor de tipo de classe. Quando uma declaração de classe é visitada, o que 
+ * vai para a pilha de escopos de execução é esta estrutura. Quando uma nova instância
+ * de classe é criada, a referência para a instância é implementada aqui.
  */
-export class DeleguaClasse extends Chamavel {
+export class DescritorTipoClasse extends Chamavel {
     simboloOriginal: SimboloInterface;
-    superClasse: DeleguaClasse;
+    superClasse: DescritorTipoClasse;
     metodos: { [nome: string]: DeleguaFuncao };
     propriedades: PropriedadeClasse[];
     dialetoRequerExpansaoPropriedadesEspacoVariaveis: boolean;
@@ -20,7 +20,7 @@ export class DeleguaClasse extends Chamavel {
 
     constructor(
         simboloOriginal?: SimboloInterface,
-        superClasse?: DeleguaClasse,
+        superClasse?: DescritorTipoClasse,
         metodos?: { [nome: string]: DeleguaFuncao },
         propriedades?: PropriedadeClasse[]
     ) {

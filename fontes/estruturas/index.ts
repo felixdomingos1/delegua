@@ -1,6 +1,6 @@
 export * from './chamavel';
 export * from './classe-padrao';
-export * from './delegua-classe';
+export * from './descritor-tipo-classe';
 export * from './funcao-padrao';
 export * from './delegua-funcao';
 export * from './metodo-primitiva';

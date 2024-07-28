@@ -1,6 +1,6 @@
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { SimboloInterface } from '../interfaces';
-import { DeleguaClasse } from './delegua-classe';
+import { DescritorTipoClasse } from './descritor-tipo-classe';
 
 /**
  * A instância de uma classe em Delégua.
@@ -8,10 +8,10 @@ import { DeleguaClasse } from './delegua-classe';
  * Métodos são extraídos do descritor da classe, uma `DeleguaClasse`.
  */
 export class ObjetoDeleguaClasse {
-    classe: DeleguaClasse;
+    classe: DescritorTipoClasse;
     propriedades: { [nome: string]: any };
 
-    constructor(classe: DeleguaClasse) {
+    constructor(classe: DescritorTipoClasse) {
         this.classe = classe;
         this.propriedades = {};
         if (this.classe.superClasse) {

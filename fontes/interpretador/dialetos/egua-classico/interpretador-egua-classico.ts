@@ -1,7 +1,7 @@
 import { EspacoVariaveis } from '../../../espaco-variaveis';
 
 import { Chamavel } from '../../../estruturas/chamavel';
-import { DeleguaClasse } from '../../../estruturas/delegua-classe';
+import { DescritorTipoClasse } from '../../../estruturas/descritor-tipo-classe';
 import { DeleguaFuncao } from '../../../estruturas/delegua-funcao';
 import { FuncaoPadrao } from '../../../estruturas/funcao-padrao';
 import { DeleguaModulo } from '../../../estruturas/modulo';
@@ -388,7 +388,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         let parametros;
         if (entidadeChamada instanceof DeleguaFuncao) {
             parametros = entidadeChamada.declaracao.parametros;
-        } else if (entidadeChamada instanceof DeleguaClasse) {
+        } else if (entidadeChamada instanceof DescritorTipoClasse) {
             parametros = entidadeChamada.metodos.inicializacao
                 ? entidadeChamada.metodos.inicializacao.declaracao.parametros
                 : [];
@@ -760,7 +760,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             objeto.constructor === Object ||
             objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
-            objeto instanceof DeleguaClasse ||
+            objeto instanceof DescritorTipoClasse ||
             objeto instanceof DeleguaModulo
         ) {
             objeto[indice] = valor;
@@ -806,7 +806,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             objeto.constructor === Object ||
             objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
-            objeto instanceof DeleguaClasse ||
+            objeto instanceof DescritorTipoClasse ||
             objeto instanceof DeleguaModulo
         ) {
             return objeto[indice] || null;
@@ -872,7 +872,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         if (declaracao.superClasse !== null) {
             const variavelSuperClasse: VariavelInterface = await this.avaliar(declaracao.superClasse);
             superClasse = variavelSuperClasse.valor;
-            if (!(superClasse instanceof DeleguaClasse)) {
+            if (!(superClasse instanceof DescritorTipoClasse)) {
                 throw new ErroEmTempoDeExecucao(
                     declaracao.superClasse.nome,
                     'Superclasse precisa ser uma classe.',
@@ -896,7 +896,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             metodos[metodoAtual.simbolo.lexema] = funcao;
         }
 
-        const deleguaClasse = new DeleguaClasse(declaracao.simbolo, superClasse, metodos);
+        const deleguaClasse = new DescritorTipoClasse(declaracao.simbolo, superClasse, metodos);
         deleguaClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis = false;
         deleguaClasse.dialetoRequerDeclaracaoPropriedades = false;
 
