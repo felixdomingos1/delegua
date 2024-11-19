@@ -107,8 +107,11 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Dicionário', async () => {
-                    const retornoLexador = lexador.mapear(["var a = {'a': 1, 'b': 2}"], -1);
+                it('Dicionário, atribuição simples', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "var a = {'a': 1, 'b': 2}",
+                        "escreva(a['b'])"
+                    ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);

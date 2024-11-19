@@ -25,14 +25,6 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
             });
 
-            it('Sucesso - Dicionário vazio', () => {
-                const retornoLexador = lexador.mapear(['var dicionarioVazio = {}'], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-            });
-
             it('Sucesso - Undefined', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(undefined as any, -1);
 
@@ -237,6 +229,27 @@ describe('Avaliador sintático', () => {
                     expect(declaracaoTendoComo.corpo).toBeInstanceOf(Bloco);
                     expect(declaracaoTendoComo.corpo.declaracoes).toHaveLength(0);
                 })
+            });
+
+            describe('Dicionários', () => {
+                it('Dicionário vazio', () => {
+                    const retornoLexador = lexador.mapear(['var dicionarioVazio = {}'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
+                it('Acesso a valor de Dicionário por índice', () => {
+                    const retornoLexador = lexador.mapear([
+                        'var dici = { 1: "Um", 2: "Dois" }',
+                        'escreva(dici[1])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
             });
 
             describe('Funções', () => {
