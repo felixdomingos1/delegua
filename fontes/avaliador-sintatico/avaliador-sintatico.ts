@@ -9,7 +9,6 @@ import {
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
-    Chamada,
     Comentario,
     Construto,
     Decorador,
@@ -620,10 +619,14 @@ export class AvaliadorSintatico
     }
 
     protected declaracaoExpressao(): Expressao {
+        // Se há decoradores a serem adicionados aqui, obtemo-los agora, 
+        // para evitar que outros passos recursivos peguem-los antes.
+        const decoradores = Array.from(this.pilhaDecoradores);
+        this.pilhaDecoradores = [];
+
         const expressao = this.expressao();
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        const decoradores = Array.from(this.pilhaDecoradores);
         return new Expressao(expressao, decoradores);
     }
 

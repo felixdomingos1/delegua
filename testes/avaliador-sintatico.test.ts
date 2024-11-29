@@ -9,7 +9,7 @@ describe('Avaliador sintático', () => {
         let avaliadorSintatico = new AvaliadorSintatico();
 
         describe('Cenários de sucesso', () => {
-            it('Sucesso - Olá Mundo', () => {
+            it('Olá Mundo', () => {
                 const retornoLexador = lexador.mapear(["escreva('Olá mundo')"], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -17,7 +17,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
             });
 
-            it('Sucesso - Vetor vazio', () => {
+            it('Vetor vazio', () => {
                 const retornoLexador = lexador.mapear(['var vetorVazio = []'], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -25,21 +25,21 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
             });
 
-            it('Sucesso - Undefined', () => {
+            it('Undefined', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(undefined as any, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
             });
 
-            it('Sucesso - Null', () => {
+            it('Null', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(null as any, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
             });
 
-            it('Sucesso - Incremento e decremento após variável ou literal', () => {
+            it('Incremento e decremento após variável ou literal', () => {
                 const retornoLexador = lexador.mapear(['var a = 1', 'a++', 'a--', '++5', '--5'], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -48,7 +48,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - leia sem parâmetro', () => {
+            it('Leia sem parâmetro', () => {
                 const retornoLexador = lexador.mapear(['var nome = leia()'], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -56,7 +56,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - leia com parâmetro', () => {
+            it('Leia com parâmetro', () => {
                 const retornoLexador = lexador.mapear(["var nome = leia('Digite seu nome:')"], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -64,7 +64,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - para cada', async () => {
+            it('Para cada', async () => {
                 const retornoLexador = lexador.mapear(
                     ['para cada elemento em [1, 2, 3] {', "   escreva('Valor: ', elemento)", '}'],
                     -1
@@ -74,7 +74,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - para cada com ponto e vírgula no final', async () => {
+            it('Para cada com ponto e vírgula no final', async () => {
                 const retornoLexador = lexador.mapear(
                     ['para cada elemento em [1, 2, 3] {', "   escreva('Valor: ', elemento)", '};'],
                     -1
@@ -84,7 +84,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - para/sustar', async () => {
+            it('Para/sustar', async () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'para (var i = 0; i < 10; i = i + 1) {',
@@ -99,7 +99,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - desestruturação de variáveis', async () => {
+            it('Desestruturação de variáveis', async () => {
                 const retornoLexador = lexador.mapear(['var { prop1 } = a'], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -107,7 +107,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Sucesso - desestruturação de constantes', async () => {
+            it('Desestruturação de constantes', async () => {
                 const retornoLexador = lexador.mapear(['const { prop1 } = a'], -1);
 
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -297,6 +297,9 @@ describe('Avaliador sintático', () => {
                             '        "titulo": "teste 1",',
                             '        "descricao": "descricao 1"',
                             '    }])',
+                            '})',
+                            'liquido.rotaPost(funcao(requisicao, resposta) {',
+                            '    resposta.redirecionar("/artigos")',
                             '})'
                         ],
                         -1
@@ -305,12 +308,13 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                    const declaracao = retornoAvaliadorSintatico.declaracoes[0];
-                    expect(declaracao).toBeInstanceOf(Expressao);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    // Declaração `liquido.rotaGet` tem 2 decoradores.
+                    const declaracaoGet = retornoAvaliadorSintatico.declaracoes[0];
+                    expect(declaracaoGet).toBeInstanceOf(Expressao);
 
-                    expect(declaracao.decoradores).toHaveLength(2);
-                    const decoradorRestDocumentacao = declaracao.decoradores[0];
+                    expect(declaracaoGet.decoradores).toHaveLength(2);
+                    const decoradorRestDocumentacao = declaracaoGet.decoradores[0];
                     expect(decoradorRestDocumentacao.nome).toBe('@rest.documentacao');
                     expect(Object.entries(decoradorRestDocumentacao.atributos)).toHaveLength(4);
                     expect('sumario' in decoradorRestDocumentacao.atributos).toBe(true);
@@ -323,7 +327,7 @@ describe('Avaliador sintático', () => {
                     expect(decoradorRestDocumentacao.atributos['etiquetas'].valores).toHaveLength(1);
                     expect(decoradorRestDocumentacao.atributos['etiquetas'].valores[0].valor).toBe('artigos');
 
-                    const decoradorRestResposta = declaracao.decoradores[1];
+                    const decoradorRestResposta = declaracaoGet.decoradores[1];
                     expect(decoradorRestResposta.nome).toBe('@rest.resposta');
                     expect(Object.entries(decoradorRestResposta.atributos)).toHaveLength(3);
                     expect('codigo' in decoradorRestResposta.atributos).toBe(true);
@@ -334,6 +338,10 @@ describe('Avaliador sintático', () => {
                     expect(decoradorRestResposta.atributos['formatos'].valores).toHaveLength(2);
                     expect(decoradorRestResposta.atributos['formatos'].valores[0].valor).toBe('application/json');
                     expect(decoradorRestResposta.atributos['formatos'].valores[1].valor).toBe('application/xml');
+
+                    // Declaração `liquido.rotaPost` não tem decoradores.
+                    const declaracaoPost = retornoAvaliadorSintatico.declaracoes[1];
+                    expect(declaracaoPost.decoradores).toHaveLength(0);
                 });
             });
 
