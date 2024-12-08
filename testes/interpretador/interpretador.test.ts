@@ -248,7 +248,11 @@ describe('Interpretador', () => {
                 it('Descrever função com parametros sem tipos - DeleguaFuncao', async () => {
                     let _saida: string = '';
                     const retornoLexador = lexador.mapear(
-                        ['funcao retorneAlgo(a, b) {', '}', 'escreva(retorneAlgo)'],
+                        [
+                            'funcao retorneAlgo(a, b) {', 
+                            '}', 
+                            'escreva(retorneAlgo)'
+                        ],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -259,7 +263,7 @@ describe('Interpretador', () => {
 
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(_saida).toBe('<função retorneAlgo argumentos=<a, b>>');
+                    expect(_saida).toBe('<função retorneAlgo argumentos=<a: qualquer, b: qualquer>>');
                 });
 
                 it('Descrever função com retorno - DeleguaFuncao', async () => {

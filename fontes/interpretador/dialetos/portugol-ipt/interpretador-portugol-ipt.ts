@@ -53,7 +53,7 @@ import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../q
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/portugol-ipt';
-import { inferirTipoVariavel } from '../../inferenciador';
+import { inferirTipoVariavel } from '../../../inferenciador';
 import { InicioAlgoritmo } from '../../../declaracoes/inicio-algoritmo';
 
 export class InterpretadorPortugolIpt implements InterpretadorInterface {

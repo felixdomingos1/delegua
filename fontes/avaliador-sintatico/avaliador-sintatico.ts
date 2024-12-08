@@ -61,6 +61,8 @@ import { Simbolo } from '../lexador';
 import { TipoDadosElementar } from '../tipo-dados-elementar';
 import { RetornoDeclaracao } from './retornos';
 import { AvaliadorSintaticoBase } from './avaliador-sintatico-base';
+import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../inferenciador';
+import { TipoInferencia } from '../inferenciador';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -77,6 +79,7 @@ export class AvaliadorSintatico
     pilhaDecoradores: Decorador[];
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
+    tiposDefinidosEmCodigo: {[key: string]: Declaracao};
 
     hashArquivo: number;
     atual: number;
@@ -90,30 +93,36 @@ export class AvaliadorSintatico
         this.blocos = 0;
         this.erros = [];
         this.performance = performance;
+        this.tiposDefinidosEmCodigo = {};
     }
 
-    protected verificarDefinicaoTipoAtual(): TipoDadosElementar {
+    protected verificarDefinicaoTipoAtual(): string {
         const tipos = [...Object.values(tipoDeDadosDelegua)];
 
-        const lexema = this.simbolos[this.atual].lexema.toLowerCase();
-        const contemTipo = tipos.find((tipo) => tipo === lexema);
+        if (this.simbolos[this.atual].lexema in this.tiposDefinidosEmCodigo) {
+            return this.simbolos[this.atual].lexema;
+        }
+        
+        const lexemaElementar = this.simbolos[this.atual].lexema.toLowerCase();
+        const tipoElementarResolvido = tipos.find((tipo) => tipo === lexemaElementar);
+        if (!tipoElementarResolvido) {
+            throw this.erro(this.simbolos[this.atual], `Tipo de dados desconhecido: '${this.simbolos[this.atual].lexema}'.`);
+        }
 
-        if (contemTipo && this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+        if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
             const tiposVetores = ['inteiro[]', 'numero[]', 'número[]', 'qualquer[]', 'real[]', 'texto[]'];
             this.avancarEDevolverAnterior();
 
             if (!this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                throw this.erro(this.simbolos[this.atual], "Esperado símbolo de fechamento do vetor ']'.");
+                throw this.erro(this.simbolos[this.atual], `Esperado símbolo de fechamento do vetor: ']'. Atual: ${this.simbolos[this.atual].lexema}`);
             }
 
-            const contemTipoVetor = tiposVetores.find((tipo) => tipo === `${lexema}[]`);
-
+            const tipoVetor = tiposVetores.find((tipo) => tipo === `${lexemaElementar}[]`);
             this.avancarEDevolverAnterior();
-
-            return contemTipoVetor as TipoDadosElementar;
+            return tipoVetor as TipoDadosElementar;
         }
 
-        return contemTipo as TipoDadosElementar;
+        return tipoElementarResolvido as TipoDadosElementar;
     }
 
     override primario(): Construto {
@@ -178,7 +187,7 @@ export class AvaliadorSintatico
 
             case tiposDeSimbolos.FALSO:
                 this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloAtual.linha), false);
+                return new Literal(this.hashArquivo, Number(simboloAtual.linha), false, 'lógico');
 
             case tiposDeSimbolos.FUNCAO:
             case tiposDeSimbolos.FUNÇÃO:
@@ -220,7 +229,9 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.NUMERO:
             case tiposDeSimbolos.TEXTO:
                 const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloNumeroTexto.linha), simboloNumeroTexto.literal);
+                const tipoInferido = inferirTipoVariavel(simboloNumeroTexto.literal);
+                const tipoDadosElementar = tipoInferenciaParaTipoDadosElementar(tipoInferido as TipoInferencia);
+                return new Literal(this.hashArquivo, Number(simboloNumeroTexto.linha), simboloNumeroTexto.literal, tipoDadosElementar);
 
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
@@ -259,7 +270,7 @@ export class AvaliadorSintatico
 
             case tiposDeSimbolos.VERDADEIRO:
                 this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloAtual.linha), true);
+                return new Literal(this.hashArquivo, Number(simboloAtual.linha), true, 'lógico');
 
             case tiposDeSimbolos.TIPO:
                 this.avancarEDevolverAnterior();
@@ -1292,16 +1303,13 @@ export class AvaliadorSintatico
             parametro.nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do parâmetro.');
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                parametro.valorPadrao = this.primario();
+                const valorPadrao = this.primario();
+                parametro.valorPadrao = valorPadrao;
             }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
                 let tipoDadoParametro = this.verificarDefinicaoTipoAtual();
-                parametro.tipoDado = {
-                    nome: this.simbolos[this.atual - 2].lexema,
-                    tipo: tipoDadoParametro,
-                    tipoInvalido: !tipoDadoParametro ? this.simbolos[this.atual].lexema : null,
-                };
+                parametro.tipoDado = tipoDadoParametro;
                 this.avancarEDevolverAnterior();
             }
 
@@ -1388,7 +1396,9 @@ export class AvaliadorSintatico
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
-        return new Classe(simbolo, superClasse, metodos, propriedades, pilhaDecoradoresClasse);
+        const definicaoClasse = new Classe(simbolo, superClasse, metodos, propriedades, pilhaDecoradoresClasse);
+        this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
+        return definicaoClasse;
     }
 
     /**

@@ -8,7 +8,7 @@ import { EscopoExecucao, TipoEscopoExecucao } from '../interfaces/escopo-execuca
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { RetornoInterpretador } from '../interfaces/retornos/retorno-interpretador';
 import { Chamada, Construto } from '../construtos';
-import { inferirTipoVariavel } from './inferenciador';
+import { inferirTipoVariavel } from '../inferenciador';
 import { InterpretadorBase } from './interpretador-base';
 
 /**

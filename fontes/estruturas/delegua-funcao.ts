@@ -7,7 +7,7 @@ import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 import { FuncaoConstruto } from '../construtos';
 import { ArgumentoInterface } from '../interpretador/argumento-interface';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
-import { inferirTipoVariavel } from '../interpretador/inferenciador';
+import { inferirTipoVariavel } from '../inferenciador';
 import { Retorna } from '../declaracoes';
 
 /**
@@ -47,9 +47,7 @@ export class DeleguaFuncao extends Chamavel {
         let retorno = '';
 
         for (let parametro of this.declaracao.parametros) {
-            parametros += `${parametro.nome.lexema}${
-                parametro.tipoDado && parametro.tipoDado.tipo ? `: ${parametro.tipoDado.tipo}, ` : ', '
-            }`;
+            parametros += `${parametro.nome.lexema}: ${parametro.tipoDado || 'qualquer'}, `;
         }
 
         if (this.declaracao.parametros.length > 0) {

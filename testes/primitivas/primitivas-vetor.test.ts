@@ -46,7 +46,8 @@ describe('Primitivas de vetor', () => {
                     -1,
                     [{
                         abrangencia: 'padrao', 
-                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'valor', null, -1, -1)
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'valor', null, -1, -1),
+                        tipoDado: 'qualquer'
                     }],
                     [
                         new Retorna(

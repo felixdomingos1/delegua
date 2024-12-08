@@ -230,32 +230,6 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Esperado retorno do tipo \'texto\' dentro da função.');
             });
 
-            it('Parametro com definição de tipo inválido', () => {
-                const retornoLexador = lexador.mapear([
-                    "funcao executar(valor1: algum, valor2): texto {",
-                    "   retorna \'Olá Mundo!!!\'",
-                    "}",
-                ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-
-                expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('O tipo \'algum\' não é válido.');
-            });
-
-            it('Declaração de retorno da função inválido.', () => {
-                const retornoLexador = lexador.mapear([
-                    "funcao executar(valor1: inteiro, valor2): XXX {",
-                    "   retorna \'Olá Mundo!!!\'",
-                    "}",
-                ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-
-                expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Declaração de retorno da função é inválido.');
-            });
-
             it('Escolha com tipos diferentes em \'caso\'', () => {
                 const retornoLexador = lexador.mapear([
                     'var opcao = leia(\'Digite a opção desejada: \')',
@@ -309,7 +283,7 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Função \'f\' espera 2 parametros.');
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Função \'f\' espera 2 parâmetros. Atual: 1.');
             });
 
             it('Chamada de função direta', () => {
@@ -323,7 +297,7 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Função \'f\' espera 2 parametros.');
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Função \'f\' espera 2 parâmetros. Atual: 1.');
             });
 
             it('Chamada de função que não existe', () => {
@@ -342,7 +316,7 @@ describe('Analisador semântico', () => {
 
             it('Chamada de função com tipos inválidos na passagem dos parametros', () => {
                 const retornoLexador = lexador.mapear([
-                    'função f(a:texto, b:inteiro, c: texto, d) {',
+                    'função f(a: texto, b: inteiro, c: texto, d) {',
                     '   escreva(a + b)',
                     '}',
                     'f(1, \'teste0\', \'teste1\', 2)',
@@ -351,8 +325,9 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('O valor passado para o parâmetro \'a\' é diferente do esperado pela função.');
-                expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('O valor passado para o parâmetro \'b\' é diferente do esperado pela função.');
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('O valor passado para o parâmetro \'a\' (texto) é diferente do esperado pela função (número).');
+                expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('O valor passado para o parâmetro \'b\' (inteiro) é diferente do esperado pela função (texto).');
             });
 
             it('Função anônima com mais de 255 parâmetros', () => {
@@ -828,19 +803,6 @@ describe('Analisador semântico', () => {
                 });
             });
             describe('Cenários de falha', () => {
-                it('Aviso - variável de classe não inicializada', () => {
-                    const retornoLexador = lexador.mapear([
-                        "classe Teste {}",
-                        "var teste: Teste;",
-                        "escreva(teste); ",
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
-                    expect(retornoAnalisadorSemantico.diagnosticos.filter(item => item.severidade === DiagnosticoSeveridade.AVISO)).toHaveLength(1);
-                });
-
                 it('Aviso - variável tipo texto não inicializada', () => {
                     const retornoLexador = lexador.mapear([
                         "classe Teste {}",

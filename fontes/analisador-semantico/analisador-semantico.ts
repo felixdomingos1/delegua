@@ -186,27 +186,34 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 );
                 return Promise.resolve();
             }
+
             const funcao = funcaoChamada.valor as FuncaoConstruto;
             if (funcao.parametros.length !== expressao.argumentos.length) {
                 this.erro(
                     expressao.entidadeChamada.simbolo,
-                    `Função '${expressao.entidadeChamada.simbolo.lexema}' espera ${funcao.parametros.length} parametros.`
+                    `Função '${expressao.entidadeChamada.simbolo.lexema}' espera ${funcao.parametros.length} parâmetros. Atual: ${expressao.argumentos.length}.`
                 );
             }
 
-            for (let [indice, arg0] of funcao.parametros.entries()) {
-                const arg1 = expressao.argumentos[indice];
-                if (arg1) {
-                    if (arg0.tipoDado?.tipo === 'texto' && typeof arg1.valor !== 'string') {
+            for (let [indice, parametro] of funcao.parametros.entries()) {
+                // TODO: `argumento` pode ser Literal (tipo já resolvido) ou variável (tipo inferido em outra etapa).
+                const argumento = expressao.argumentos[indice] as any;
+                if (argumento) {
+                    if (parametro.tipoDado === 'texto' && typeof argumento.valor !== 'string') {
                         this.erro(
                             expressao.entidadeChamada.simbolo,
-                            `O valor passado para o parâmetro '${arg0.tipoDado.nome}' é diferente do esperado pela função.`
+                            `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${argumento.tipo}).`
                         );
-                    } else if (['inteiro', 'real'].includes(arg0.tipoDado?.tipo) && typeof arg1.valor !== 'number') {
-                        this.erro(
-                            expressao.entidadeChamada.simbolo,
-                            `O valor passado para o parâmetro '${arg0.tipoDado.nome}' é diferente do esperado pela função.`
-                        );
+                    } else if (['inteiro', 'número', 'real'].includes(parametro.tipoDado)) {
+                        // Aqui, se houver diferença entre os tipos do parâmetro e do argumento, não há erro, 
+                        // porque Delégua pode trabalhar com conversões implícitas.
+                        // Isso pode ou não mudar no futuro.
+                        if (!['inteiro', 'número', 'real'].includes(argumento.tipo)) {
+                            this.erro(
+                                expressao.entidadeChamada.simbolo,
+                                `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${argumento.tipo}).`
+                            );
+                        }
                     }
                 }
             }
@@ -500,9 +507,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         for (let parametro of declaracao.funcao.parametros) {
-            if (parametro.hasOwnProperty('tipoDado') && !parametro.tipoDado.tipo) {
+            // TODO: Repensar.
+            /* if (parametro.hasOwnProperty('tipoDado') && !parametro.tipoDado.tipo) {
                 this.erro(declaracao.simbolo, `O tipo '${parametro.tipoDado.tipoInvalido}' não é válido.`);
-            }
+            } */
+           console.log(parametro);
         }
 
         if (declaracao.funcao.tipoRetorno === undefined) {

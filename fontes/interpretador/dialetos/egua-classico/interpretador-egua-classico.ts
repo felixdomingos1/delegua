@@ -54,7 +54,7 @@ import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador'
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { RetornoInterpretador } from '../../../interfaces/retornos/retorno-interpretador';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
-import { inferirTipoVariavel } from '../../inferenciador';
+import { inferirTipoVariavel } from '../../../inferenciador';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 
 import tiposDeSimbolos from '../../../tipos-de-simbolos/egua-classico';

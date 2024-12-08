@@ -71,7 +71,7 @@ import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
-import { inferirTipoVariavel } from './inferenciador';
+import { inferirTipoVariavel } from '../inferenciador';
 import { MetodoPrimitiva } from '../estruturas/metodo-primitiva';
 import { ArgumentoInterface } from './argumento-interface';
 

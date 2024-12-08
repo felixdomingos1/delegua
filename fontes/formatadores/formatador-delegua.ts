@@ -579,9 +579,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarExpressaoFuncaoConstruto(expressao: FuncaoConstruto) {
         this.codigoFormatado += `(`;
         for (let argumento of expressao.parametros) {
-            this.codigoFormatado += `${argumento.nome.lexema}${
-                argumento.tipoDado && argumento.tipoDado.tipo ? `: ${argumento.tipoDado.tipo}, ` : ', '
-            }`;
+            this.codigoFormatado += `${argumento.nome.lexema}: ${argumento.tipoDado || 'qualquer'}, `;
         }
 
         if (expressao.parametros.length > 0) {

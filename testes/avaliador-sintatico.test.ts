@@ -1,7 +1,7 @@
 import { Lexador } from '../fontes/lexador';
 import { AvaliadorSintatico } from '../fontes/avaliador-sintatico';
-import { Bloco, Classe, Expressao, TendoComo } from '../fontes/declaracoes';
-import { Chamada, Literal } from '../fontes/construtos';
+import { Bloco, Classe, Expressao, FuncaoDeclaracao, TendoComo } from '../fontes/declaracoes';
+import { Chamada, FuncaoConstruto, Literal } from '../fontes/construtos';
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
@@ -394,7 +394,7 @@ describe('Avaliador sintático', () => {
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
     
-                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(0);
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
 
                 it('Função retorna vazio mas tem retorno de valores', async () => {
@@ -409,7 +409,7 @@ describe('Avaliador sintático', () => {
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(0);
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
 
                 it('Retorno texto sem retorno dentro da função', async () => {
@@ -418,19 +418,49 @@ describe('Avaliador sintático', () => {
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(0);
+    
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
 
                 it('Função com retorno de vetor', () => {
                     const retornoLexador = lexador.mapear(
-                        ['funcao executar(): texto[] {', '   retorna ["1", "2"]', '}'],
+                        [
+                            'funcao executar(): texto[] {', 
+                            '   retorna ["1", "2"]', 
+                            '}'
+                        ],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(0);
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Função com parâmetros tipados', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao soma(a: inteiro, b: inteiro): inteiro {',
+                            '    retorna a + b',
+                            '}'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0];
+                    expect(declaracao.constructor.name).toBe('FuncaoDeclaracao');
+                    const declaracaoTipada = declaracao as FuncaoDeclaracao;
+                    const construtoFuncao = declaracaoTipada.funcao;
+                    expect(construtoFuncao.constructor.name).toBe('FuncaoConstruto');
+                    const construtoFuncaoTipado = construtoFuncao as FuncaoConstruto;
+                    expect(construtoFuncaoTipado.tipoRetorno).toBe('inteiro');
+                    expect(construtoFuncaoTipado.parametros).toHaveLength(2);
+                    expect(construtoFuncaoTipado.parametros[0].tipoDado).toBe('inteiro');
+                    expect(construtoFuncaoTipado.parametros[1].tipoDado).toBe('inteiro');
                 });
             })
 
@@ -507,10 +537,21 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
             });
+
+            it('Declaração `tente ... pegue com parâmetro`', () => {
+                const retornoLexador = lexador.mapear(['tente { i = i + 1 } pegue (erro) { escreva(erro) }'], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                const declaracao = retornoAvaliadorSintatico.declaracoes[0];
+                expect(declaracao.constructor.name).toBe('Tente');
+            });
         });
 
         describe('Cenários de falha', () => {
-            it('Falha - declaração de variáveis com identificadores à esquerda do igual diferente da quantidade de valores à direita', async () => {
+            it('Declaração de variáveis com identificadores à esquerda do igual diferente da quantidade de valores à direita', async () => {
                 const retornoLexador = lexador.mapear(['var a, b, c = 1, 2'], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -520,7 +561,7 @@ describe('Avaliador sintático', () => {
                 );
             });
 
-            it('Falha - declaração de constantes com identificadores à esquerda do igual diferente da quantidade de valores à direita', async () => {
+            it('Declaração de constantes com identificadores à esquerda do igual diferente da quantidade de valores à direita', async () => {
                 const retornoLexador = lexador.mapear(['const a, b, c = 1, 2'], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -530,7 +571,7 @@ describe('Avaliador sintático', () => {
                 );
             });
 
-            it('Falha - sustar fora de laço de repetição', async () => {
+            it('Sustar fora de laço de repetição', async () => {
                 const retornoLexador = lexador.mapear(['sustar;'], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -540,7 +581,7 @@ describe('Avaliador sintático', () => {
                 );
             });
 
-            it('Falha - continua fora de laço de repetição', async () => {
+            it('Continua fora de laço de repetição', async () => {
                 const retornoLexador = lexador.mapear(['continua;'], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -550,7 +591,7 @@ describe('Avaliador sintático', () => {
                 );
             });
 
-            it('Falha - Não é permitido ter dois identificadores seguidos na mesma linha', () => {
+            it('Não é permitido ter dois identificadores seguidos na mesma linha', () => {
                 const retornoLexador = lexador.mapear(["escreva('Olá mundo') identificador1 identificador2"], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -558,13 +599,6 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros[0].message).toBe(
                     'Não é permitido ter dois identificadores seguidos na mesma linha.'
                 );
-            });
-
-            it('Declaração `tente`', () => {
-                const retornoLexador = lexador.mapear(['tente { i = i + 1 } pegue (erro) { escreva(erro) }'], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                expect(retornoAvaliadorSintatico).toBeTruthy();
             });
         });
     });
