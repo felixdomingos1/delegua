@@ -205,7 +205,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                             `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${argumento.tipo}).`
                         );
                     } else if (['inteiro', 'número', 'real'].includes(parametro.tipoDado)) {
-                        // Aqui, se houver diferença entre os tipos do parâmetro e do argumento, não há erro, 
+                        // Aqui, se houver diferença entre os tipos do parâmetro e do argumento, não há erro,
                         // porque Delégua pode trabalhar com conversões implícitas.
                         // Isso pode ou não mudar no futuro.
                         if (!['inteiro', 'número', 'real'].includes(argumento.tipo)) {
@@ -511,7 +511,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             /* if (parametro.hasOwnProperty('tipoDado') && !parametro.tipoDado.tipo) {
                 this.erro(declaracao.simbolo, `O tipo '${parametro.tipoDado.tipoInvalido}' não é válido.`);
             } */
-           console.log(parametro);
+            console.log(parametro);
         }
 
         if (declaracao.funcao.tipoRetorno === undefined) {

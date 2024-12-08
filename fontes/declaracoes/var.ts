@@ -14,9 +14,9 @@ export class Var extends Declaracao {
     desestruturacao: boolean;
 
     constructor(
-        simbolo: SimboloInterface, 
-        inicializador: Construto, 
-        tipo: TipoDadosElementar = undefined, 
+        simbolo: SimboloInterface,
+        inicializador: Construto,
+        tipo: TipoDadosElementar = undefined,
         decoradores: Decorador[] = []
     ) {
         super(Number(simbolo.linha), simbolo.hashArquivo, decoradores);

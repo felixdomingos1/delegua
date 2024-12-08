@@ -8,7 +8,7 @@ import {
     Literal,
     Logico,
     Unario,
-    Variavel
+    Variavel,
 } from '../construtos';
 import { Declaracao } from '../declaracoes';
 import { SimboloInterface } from '../interfaces';
@@ -21,7 +21,6 @@ import tiposDeSimbolos from '../tipos-de-simbolos/microgramaticas/delegua';
  * O MicroAvaliadorSintatico funciona apenas dentro de interpolações de texto.
  */
 export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
-
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];

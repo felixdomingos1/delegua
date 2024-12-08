@@ -72,14 +72,14 @@ type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolo
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
  */
-export class AvaliadorSintatico 
+export class AvaliadorSintatico
     extends AvaliadorSintaticoBase
-    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> 
+    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
 {
     pilhaDecoradores: Decorador[];
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
-    tiposDefinidosEmCodigo: {[key: string]: Declaracao};
+    tiposDefinidosEmCodigo: { [key: string]: Declaracao };
 
     hashArquivo: number;
     atual: number;
@@ -102,11 +102,14 @@ export class AvaliadorSintatico
         if (this.simbolos[this.atual].lexema in this.tiposDefinidosEmCodigo) {
             return this.simbolos[this.atual].lexema;
         }
-        
+
         const lexemaElementar = this.simbolos[this.atual].lexema.toLowerCase();
         const tipoElementarResolvido = tipos.find((tipo) => tipo === lexemaElementar);
         if (!tipoElementarResolvido) {
-            throw this.erro(this.simbolos[this.atual], `Tipo de dados desconhecido: '${this.simbolos[this.atual].lexema}'.`);
+            throw this.erro(
+                this.simbolos[this.atual],
+                `Tipo de dados desconhecido: '${this.simbolos[this.atual].lexema}'.`
+            );
         }
 
         if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
@@ -114,7 +117,10 @@ export class AvaliadorSintatico
             this.avancarEDevolverAnterior();
 
             if (!this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                throw this.erro(this.simbolos[this.atual], `Esperado símbolo de fechamento do vetor: ']'. Atual: ${this.simbolos[this.atual].lexema}`);
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    `Esperado símbolo de fechamento do vetor: ']'. Atual: ${this.simbolos[this.atual].lexema}`
+                );
             }
 
             const tipoVetor = tiposVetores.find((tipo) => tipo === `${lexemaElementar}[]`);
@@ -231,7 +237,12 @@ export class AvaliadorSintatico
                 const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
                 const tipoInferido = inferirTipoVariavel(simboloNumeroTexto.literal);
                 const tipoDadosElementar = tipoInferenciaParaTipoDadosElementar(tipoInferido as TipoInferencia);
-                return new Literal(this.hashArquivo, Number(simboloNumeroTexto.linha), simboloNumeroTexto.literal, tipoDadosElementar);
+                return new Literal(
+                    this.hashArquivo,
+                    Number(simboloNumeroTexto.linha),
+                    simboloNumeroTexto.literal,
+                    tipoDadosElementar
+                );
 
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
@@ -531,12 +542,7 @@ export class AvaliadorSintatico
             if (expressao.esquerda instanceof AcessoIndiceVariavel) {
                 const entidade = expressao.esquerda as AcessoIndiceVariavel;
                 const simbolo = (entidade.entidadeChamada as Variavel).simbolo;
-                return new Atribuir(
-                    this.hashArquivo,
-                    simbolo,
-                    expressao,
-                    entidade.indice
-                );
+                return new Atribuir(this.hashArquivo, simbolo, expressao, entidade.indice);
             }
 
             const simbolo = (expressao.esquerda as Variavel).simbolo;
@@ -548,13 +554,13 @@ export class AvaliadorSintatico
             if (expressao instanceof Variavel) {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
-            } 
-            
+            }
+
             if (expressao instanceof AcessoMetodoOuPropriedade) {
                 const get = expressao;
                 return new DefinirValor(this.hashArquivo, igual.linha, get.objeto, get.simbolo, valor);
-            } 
-            
+            }
+
             if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoPorIndice(
                     this.hashArquivo,
@@ -564,7 +570,7 @@ export class AvaliadorSintatico
                     valor
                 );
             }
-            
+
             this.erro(igual, 'Tarefa de atribuição inválida');
         }
 
@@ -630,7 +636,7 @@ export class AvaliadorSintatico
     }
 
     protected declaracaoExpressao(): Expressao {
-        // Se há decoradores a serem adicionados aqui, obtemo-los agora, 
+        // Se há decoradores a serem adicionados aqui, obtemo-los agora,
         // para evitar que outros passos recursivos peguem-los antes.
         const decoradores = Array.from(this.pilhaDecoradores);
         this.pilhaDecoradores = [];
@@ -977,10 +983,13 @@ export class AvaliadorSintatico
                 nomeDecorador += simbolo.lexema || '.';
             }
 
-            const atributos: {[key: string]: any} = {};
+            const atributos: { [key: string]: any } = {};
             for (const parametro of parametros) {
                 if (parametro.nome.lexema in atributos) {
-                    throw this.erro(parametro.nome, `Atributo de decorador declarado duas ou mais vezes: ${parametro.nome.lexema}`);
+                    throw this.erro(
+                        parametro.nome,
+                        `Atributo de decorador declarado duas ou mais vezes: ${parametro.nome.lexema}`
+                    );
                 }
 
                 atributos[parametro.nome.lexema] = parametro.valorPadrao;
@@ -1117,7 +1126,10 @@ export class AvaliadorSintatico
         // como prefixo o nome do inicializador, e o sufixo o nome de cada propriedade.
         const retornos = [];
         for (let identificador of identificadores) {
-            const declaracaoVar = new Var(identificador, new AcessoMetodoOuPropriedade(this.hashArquivo, inicializador, identificador));
+            const declaracaoVar = new Var(
+                identificador,
+                new AcessoMetodoOuPropriedade(this.hashArquivo, inicializador, identificador)
+            );
             declaracaoVar.decoradores = Array.from(this.pilhaDecoradores);
             retornos.push(declaracaoVar);
         }
@@ -1151,14 +1163,7 @@ export class AvaliadorSintatico
         if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             // Inicialização de variáveis sem valor.
             for (let identificador of identificadores.values()) {
-                retorno.push(
-                    new Var(
-                        identificador, 
-                        null, 
-                        tipo, 
-                        Array.from(this.pilhaDecoradores)
-                    )
-                );
+                retorno.push(new Var(identificador, null, tipo, Array.from(this.pilhaDecoradores)));
             }
 
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
@@ -1180,14 +1185,7 @@ export class AvaliadorSintatico
 
         for (let [indice, identificador] of identificadores.entries()) {
             tipo = inicializadores[indice] instanceof Tupla ? tipoDeDadosDelegua.TUPLA : tipo;
-            retorno.push(
-                new Var(
-                    identificador, 
-                    inicializadores[indice], 
-                    tipo,
-                    Array.from(this.pilhaDecoradores)
-                )
-            );
+            retorno.push(new Var(identificador, inicializadores[indice], tipo, Array.from(this.pilhaDecoradores)));
         }
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
@@ -1214,7 +1212,7 @@ export class AvaliadorSintatico
         const retornos: Const[] = [];
         for (let identificador of identificadores) {
             const declaracaoConst = new Const(
-                identificador, 
+                identificador,
                 new AcessoMetodoOuPropriedade(this.hashArquivo, inicializador, identificador)
             );
 
@@ -1283,7 +1281,7 @@ export class AvaliadorSintatico
         }
 
         const decoradores = Array.from(this.pilhaDecoradores);
-        this.pilhaDecoradores = []
+        this.pilhaDecoradores = [];
         return new FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo), null, decoradores);
     }
 
@@ -1386,7 +1384,11 @@ export class AvaliadorSintatico
                     const tipoPropriedade = this.avancarEDevolverAnterior();
                     this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
                     propriedades.push(
-                        new PropriedadeClasse(nomePropriedade, tipoPropriedade.lexema, Array.from(this.pilhaDecoradores))
+                        new PropriedadeClasse(
+                            nomePropriedade,
+                            tipoPropriedade.lexema,
+                            Array.from(this.pilhaDecoradores)
+                        )
                     );
                     this.pilhaDecoradores = [];
                     break;
@@ -1402,9 +1404,9 @@ export class AvaliadorSintatico
     }
 
     /**
-     * Declarações fora de bloco precisam ser verificadas primeiro por 
-     * uma série de motivos, como, por exemplo: 
-     * 
+     * Declarações fora de bloco precisam ser verificadas primeiro por
+     * uma série de motivos, como, por exemplo:
+     *
      * - Não é possível declarar uma classe/função dentro de um bloco `enquanto`,
      *   `fazer ... enquanto`, `para`, `escolha`, etc;
      * - Qualquer declaração pode ter um decorador.

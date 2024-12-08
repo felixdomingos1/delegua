@@ -1,8 +1,4 @@
-import {
-    Construto,
-    FuncaoConstruto,
-    Literal
-} from '../../construtos';
+import { Construto, FuncaoConstruto, Literal } from '../../construtos';
 import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, Leia } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
@@ -16,7 +12,6 @@ import { SimboloInterface } from '../../interfaces';
  * Um dia pode ser terminado para virar um dialeto completo.
  */
 export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
-
     protected declaracaoLeia(): Leia {
         throw new Error('Method not implemented.');
     }

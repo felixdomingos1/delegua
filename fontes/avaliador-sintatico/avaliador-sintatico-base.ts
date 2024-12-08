@@ -71,7 +71,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return this.simbolos[this.atual - 1];
     }
 
-    // TODO: Verificar possibilidade de remoção. 
+    // TODO: Verificar possibilidade de remoção.
     // Regressão de símbolo é uma roubada por N razões.
     protected regredirEDevolverAtual(): SimboloInterface {
         if (this.atual > 0) this.atual -= 1;
@@ -91,16 +91,16 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     }
 
     /**
-     * Os métodos a seguir devem ser implementados nos seus respectivos 
+     * Os métodos a seguir devem ser implementados nos seus respectivos
      * dialetos por diferentes razões: seja porque o dialeto correspondente
-     * tem uma abordagem diferente sobre entrada e saída, seja porque a 
+     * tem uma abordagem diferente sobre entrada e saída, seja porque a
      * funcionalidade sequer existe, mas é suprimida por outra.
-     * 
+     *
      * Esses métodos não precisam ser expostos. A recomendação geral é
      * implementá-los como `protected`.
      */
-    protected abstract atribuir(): Construto; // `atribuir()` deve chamar `ou()` ou algum outro método unário ou 
-                                    // binário de visita na implementação.
+    protected abstract atribuir(): Construto; // `atribuir()` deve chamar `ou()` ou algum outro método unário ou
+    // binário de visita na implementação.
     protected abstract blocoEscopo(): Declaracao[];
     protected abstract chamar(): Construto;
     protected abstract corpoDaFuncao(tipo: string): FuncaoConstruto;
@@ -108,7 +108,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     protected abstract declaracaoEscolha(): Escolha;
     protected abstract declaracaoEscreva(): Escreva;
     protected abstract declaracaoFazer(): Fazer;
-    protected abstract declaracaoLeia(): Leia
+    protected abstract declaracaoLeia(): Leia;
     protected abstract declaracaoPara(): Para | ParaCada;
     protected abstract declaracaoSe(): Se;
     protected abstract primario(): Construto;
@@ -353,10 +353,10 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     }
 
     /**
-     * Este é o ponto de entrada de toda a avaliação sintática. É o 
-     * único método mencionado na interface do avaliador sintático. 
+     * Este é o ponto de entrada de toda a avaliação sintática. É o
+     * único método mencionado na interface do avaliador sintático.
      * @param retornoLexador O retorno do Lexador.
-     * @param hashArquivo O hash do arquivo, gerado pela função `cyrb53`. 
+     * @param hashArquivo O hash do arquivo, gerado pela função `cyrb53`.
      */
     abstract analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,

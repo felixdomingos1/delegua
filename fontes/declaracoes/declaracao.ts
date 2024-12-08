@@ -7,7 +7,12 @@ export class Declaracao {
     assinaturaMetodo: string;
     decoradores: Decorador[];
 
-    constructor(linha: number, hashArquivo: number, decoradores: Decorador[] = [], assinaturaMetodo: string = '<principal>') {
+    constructor(
+        linha: number,
+        hashArquivo: number,
+        decoradores: Decorador[] = [],
+        assinaturaMetodo: string = '<principal>'
+    ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.decoradores = decoradores;

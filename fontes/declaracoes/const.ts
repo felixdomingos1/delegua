@@ -12,8 +12,8 @@ export class Const extends Declaracao {
     tipo: TipoDadosElementar;
 
     constructor(
-        simbolo: SimboloInterface, 
-        inicializador: Construto, 
+        simbolo: SimboloInterface,
+        inicializador: Construto,
         tipo: TipoDadosElementar = undefined,
         decoradores: Decorador[] = []
     ) {

@@ -139,8 +139,12 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
     }
 
     traduzirConstrutoAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
-        const entidade = this.dicionarioConstrutos[acessoIndiceVariavel.entidadeChamada.constructor.name](acessoIndiceVariavel.entidadeChamada);
-        const indice = this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](acessoIndiceVariavel.indice);
+        const entidade = this.dicionarioConstrutos[acessoIndiceVariavel.entidadeChamada.constructor.name](
+            acessoIndiceVariavel.entidadeChamada
+        );
+        const indice = this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](
+            acessoIndiceVariavel.indice
+        );
         return `${entidade}[${indice}]`;
     }
 
@@ -164,8 +168,12 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
     }
 
     traduzirConstrutoAtribuicaoPorIndice(atribuicaoPorIndice: AtribuicaoPorIndice): string {
-        const objeto = this.dicionarioConstrutos[atribuicaoPorIndice.objeto.constructor.name](atribuicaoPorIndice.objeto);
-        const indice = this.dicionarioConstrutos[atribuicaoPorIndice.indice.constructor.name](atribuicaoPorIndice.indice);
+        const objeto = this.dicionarioConstrutos[atribuicaoPorIndice.objeto.constructor.name](
+            atribuicaoPorIndice.objeto
+        );
+        const indice = this.dicionarioConstrutos[atribuicaoPorIndice.indice.constructor.name](
+            atribuicaoPorIndice.indice
+        );
         const valor = this.dicionarioConstrutos[atribuicaoPorIndice.valor.constructor.name](atribuicaoPorIndice.valor);
         return `${objeto}[${indice}] = ${valor}`;
     }
@@ -378,7 +386,9 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
 
     traduzirDeclaracaoEnquanto(declaracaoEnquanto: Enquanto): string {
         let resultado = ' '.repeat(this.indentacao) + 'while ';
-        const condicao = this.dicionarioConstrutos[declaracaoEnquanto.condicao.constructor.name](declaracaoEnquanto.condicao);
+        const condicao = this.dicionarioConstrutos[declaracaoEnquanto.condicao.constructor.name](
+            declaracaoEnquanto.condicao
+        );
         resultado += condicao + ':\n';
         resultado += this.dicionarioDeclaracoes[declaracaoEnquanto.corpo.constructor.name](declaracaoEnquanto.corpo);
         return resultado;
@@ -433,7 +443,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
 
     /**
      * Como não existe declaração `para` com variáveis de controle em Python, o
-     * que tentamos aqui é criar a mesma coisa usando `while()`. 
+     * que tentamos aqui é criar a mesma coisa usando `while()`.
      * @param declaracaoPara A declaração `Para`.
      * @returns Um bloco equivalente ao que seria um bloco `for` com variáveis de controle em Python.
      */
@@ -444,10 +454,15 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         if (declaracaoPara.inicializador) {
             if (Array.isArray(declaracaoPara.inicializador)) {
                 for (const declaracaoInicializador of declaracaoPara.inicializador) {
-                    resultado += this.dicionarioDeclaracoes[declaracaoInicializador.constructor.name](declaracaoInicializador) + `\n`;    
+                    resultado +=
+                        this.dicionarioDeclaracoes[declaracaoInicializador.constructor.name](declaracaoInicializador) +
+                        `\n`;
                 }
             } else {
-                resultado += this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) + `\n`;
+                resultado +=
+                    this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](
+                        declaracaoPara.inicializador
+                    ) + `\n`;
             }
         }
 
@@ -506,7 +521,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
                             false
                         );
                         return resultado;
-                    } 
+                    }
 
                     resultado += this.dicionarioDeclaracoes[senao.caminhoSenao.constructor.name](
                         senao.caminhoSenao,

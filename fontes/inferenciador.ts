@@ -3,7 +3,7 @@ import tipoDeDadosPrimitivos from './tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from './tipos-de-dados/delegua';
 import tiposDeSimbolos from './tipos-de-simbolos/delegua';
 import { TipoDadosElementar } from './tipo-dados-elementar';
-export type TipoInferencia = 
+export type TipoInferencia =
     | 'cadeia'
     | 'caracter'
     | 'dicionário'
@@ -53,8 +53,8 @@ export function inferirTipoVariavel(
         case 'undefined':
             return 'nulo';
         case 'object':
-            if (Array.isArray(variavel)) { 
-                const tiposEmVetor = new Set(variavel.map(elemento => typeof elemento));
+            if (Array.isArray(variavel)) {
+                const tiposEmVetor = new Set(variavel.map((elemento) => typeof elemento));
                 if (tiposEmVetor.size > 1) {
                     return 'vetor';
                 }

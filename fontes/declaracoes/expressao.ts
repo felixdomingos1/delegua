@@ -5,10 +5,7 @@ import { Declaracao } from './declaracao';
 export class Expressao extends Declaracao {
     expressao: Construto;
 
-    constructor(
-        expressao: Construto,
-        decoradores: Decorador[] = []
-    ) {
+    constructor(expressao: Construto, decoradores: Decorador[] = []) {
         super(expressao.linha, expressao.hashArquivo, decoradores);
         this.expressao = expressao;
     }

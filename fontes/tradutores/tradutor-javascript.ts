@@ -413,12 +413,14 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         if (declaracaoPara.inicializador.constructor.name === 'Array') {
             resultado +=
                 this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](
-                    declaracaoPara.inicializador[0], false
+                    declaracaoPara.inicializador[0],
+                    false
                 ) + '; ';
         } else {
             resultado +=
                 this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](
-                    declaracaoPara.inicializador, false
+                    declaracaoPara.inicializador,
+                    false
                 ) + '; ';
         }
 
