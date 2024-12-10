@@ -4,14 +4,15 @@ import { Construto } from './construto';
 export class Variavel<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
     hashArquivo: number;
-
     simbolo: SimboloInterface<TTipoSimbolo>;
+    tipo: string;
 
-    constructor(hashArquivo: number, simbolo: SimboloInterface<TTipoSimbolo>) {
+    constructor(hashArquivo: number, simbolo: SimboloInterface<TTipoSimbolo>, tipo: string = 'qualquer') {
         this.linha = Number(simbolo.linha);
         this.hashArquivo = hashArquivo;
 
         this.simbolo = simbolo;
+        this.tipo = tipo;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<VariavelInterface> {

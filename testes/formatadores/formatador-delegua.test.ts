@@ -286,7 +286,7 @@ describe('Formatadores > Delégua', () => {
 
     it('Se', () => {
         const resultadoLexador = lexador.mapear(
-            ["se a == 1 { escreva(a) } senao {escreva(a + 1)} "], 
+            ["var a = 2 se a == 1 { escreva(a) } senao {escreva(a + 1)} "], 
             -1
         );
 
@@ -295,7 +295,7 @@ describe('Formatadores > Delégua', () => {
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         // console.log(resultado);
-        expect(linhasResultado).toHaveLength(6);
+        expect(linhasResultado).toHaveLength(7);
     });
 
     it('Tendo ... como', () => {

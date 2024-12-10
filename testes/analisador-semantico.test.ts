@@ -43,7 +43,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(9);
             });
 
-            it('Sucesso - Atribuindo tipos válidos para variáveis', () => {
+            it('Atribuindo tipos válidos para variáveis', () => {
                 const retornoLexador = lexador.mapear([
                     "var a: inteiro = 1",
                     "a = 123",
@@ -94,17 +94,6 @@ describe('Analisador semântico', () => {
         });
 
         describe('Cenários de falha', () => {
-            it('Atribuindo variável que não existe', () => {
-                const retornoLexador = lexador.mapear([
-                    "b = 1"
-                ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-
-                expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
-            });
-
             it('Atribuição de constante + reatribuição de constante', () => {
                 const retornoLexador = lexador.mapear([
                     "const a = 1",
@@ -151,14 +140,16 @@ describe('Analisador semântico', () => {
                     "var v2: inteiro[] = ['1']",
                     "var v3: inteiro[] = 1"
                 ], -1);
+                
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Atribuição inválida para \'t\', é esperado um \'texto\'.');
-                expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('Atribuição inválida para \'n\', é esperado um \'número\'.');
-                expect(retornoAnalisadorSemantico.diagnosticos[2].mensagem).toBe('Atribuição inválida para \'v1\', é esperado um vetor de \'texto\'.');
-                expect(retornoAnalisadorSemantico.diagnosticos[3].mensagem).toBe('Atribuição inválida para \'v2\', é esperado um vetor de \'inteiros\' ou \'real\'.');
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(5);
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Atribuição inválida para \'t\', é esperado um valor do tipo texto. Atual: número.');
+                expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('Atribuição inválida para \'n\', é esperado um valor do tipo número. Atual: texto.');
+                expect(retornoAnalisadorSemantico.diagnosticos[2].mensagem).toBe('Atribuição inválida para \'v1\', é esperado um valor do tipo vetor de texto. Atual: número[].');
+                expect(retornoAnalisadorSemantico.diagnosticos[3].mensagem).toBe('Atribuição inválida para \'v2\', é esperado um valor do tipo vetor de inteiro ou real. Atual: texto[].');
                 expect(retornoAnalisadorSemantico.diagnosticos[4].mensagem).toBe('Atribuição inválida para \'v3\', é esperado um vetor de elementos.');
             });
 
@@ -232,19 +223,22 @@ describe('Analisador semântico', () => {
 
             it('Escolha com tipos diferentes em \'caso\'', () => {
                 const retornoLexador = lexador.mapear([
+                    'funcao facaAlgumaCoisa() { escreva(123) }',
                     'var opcao = leia(\'Digite a opção desejada: \')',
                     'escolha opcao {',
-                    'caso 0:',
-                    'caso 1: // Avisar aqui que tipo de `opcao` não é o mesmo tipo do literal 1',
-                    'facaAlgumaCoisa()',
-                    'caso \'1\': // Aqui o tipo está correto, então não precisa avisar.',
-                    'facaAlgumaCoisa()',
+                    '   caso 0:',
+                    '   caso 1: // Avisar aqui que tipo de `opcao` não é o mesmo tipo do literal 1',
+                    '       facaAlgumaCoisa()',
+                    '   caso \'1\': // Aqui o tipo está correto, então não precisa avisar.',
+                    '       facaAlgumaCoisa()',
                     '}',
                 ], -1);
+
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
                 expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('\'caso 0:\' não é do mesmo tipo esperado em \'escolha\'');
                 expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('\'caso 1:\' não é do mesmo tipo esperado em \'escolha\'');
             });
@@ -258,18 +252,6 @@ describe('Analisador semântico', () => {
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Atribuição inválida para \'opcao\', Leia só pode receber tipo \'texto\'.');
-            });
-
-            it('Escreva com variável que não existe', () => {
-                const retornoLexador = lexador.mapear([
-                    'var t = \'teste\'',
-                    'escreva(XXX,\' outro teste\')',
-                ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-
-                expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Variável \'XXX\' não existe.');
             });
 
             it('Atribuição de função', () => {
@@ -300,24 +282,10 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Função \'f\' espera 2 parâmetros. Atual: 1.');
             });
 
-            it('Chamada de função que não existe', () => {
-                const retornoLexador = lexador.mapear([
-                    'função f(a, b) {',
-                    '   escreva(a + b)',
-                    '}',
-                    'x()',
-                ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-
-                expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Chamada da função \'x\' não existe.');
-            });
-
             it('Chamada de função com tipos inválidos na passagem dos parametros', () => {
                 const retornoLexador = lexador.mapear([
                     'função f(a: texto, b: inteiro, c: texto, d) {',
-                    '   escreva(a + b)',
+                    '    escreva(a + b)',
                     '}',
                     'f(1, \'teste0\', \'teste1\', 2)',
                 ], -1);
@@ -330,7 +298,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('O valor passado para o parâmetro \'b\' (inteiro) é diferente do esperado pela função (texto).');
             });
 
-            it('Função anônima com mais de 255 parâmetros', () => {
+            it('Funções anônimas com mais de 255 parâmetros', () => {
                 let acumulador = '';
                 for (let i = 1; i <= 256; i++) {
                     acumulador += 'a' + i + ', ';
@@ -349,8 +317,9 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Não pode haver mais de 255 parâmetros');
-                expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('Não pode haver mais de 255 parâmetros');
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Função não pode ter mais de 255 parâmetros.');
+                expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('Função não pode ter mais de 255 parâmetros.');
             });
         });
 
@@ -476,19 +445,6 @@ describe('Analisador semântico', () => {
                 });
             });
             describe('Cenários de falha', () => {
-                it('com condicional não declarada', () => {
-                    const retornoLexador = lexador.mapear([
-                        "enquanto condicional {  ",
-                        "    escreva(\"sim\");   ",
-                        "    sustar;             ",
-                        "}                       ",
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
-                });
 
                 it('com variavel definida com valor inválido', () => {
                     const retornoLexador = lexador.mapear([
@@ -505,34 +461,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
                 });
 
-                it('com variável não declarada e expressão binária', () => {
-                    const retornoLexador = lexador.mapear([
-                        "enquanto valor != 5 {              ",
-                        "    escreva(\"sim\");              ",
-                        "    valor++;                       ",
-                        "}                                  ",
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
-                });
-
-                it('com variável não declarada e agrupamento', () => {
-                    const retornoLexador = lexador.mapear([
-                        "enquanto (valor != 5) {            ",
-                        "    escreva(\"sim\");              ",
-                        "    valor++;                       ",
-                        "}                                  ",
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
-                });
-
+                // TODO: Mudar este teste ao reimplementar operações bit a bit com números.
                 it('falha - verificar valores lógicos nas operações binárias e agrupamento', () => {
                     const retornoLexador = lexador.mapear([
                         "var x = 5;                         ",
@@ -593,23 +522,6 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
                 });
-
-                it('falha - verificar função não declarada', () => {
-                    const retornoLexador = lexador.mapear([
-                        "enquanto (funcaoNaoExistente()) {",
-                        "   escreva('teste');",
-                        "   sustar;",
-                        "}",
-                        "enquanto funcaoNaoExistente() {",
-                        "   escreva('teste');",
-                        "   sustar;",
-                        "}",
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
-                });
             });
         });
 
@@ -638,41 +550,6 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
                 });
             });
-
-            describe('Cenários de falha', () => {
-
-                it('tipo de com variável não definida', () => {
-                    const retornoLexador = lexador.mapear([
-                        "tipo de condicional                ",
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
-                });
-
-                it('tipo de com variável não definida e agrupamento', () => {
-                    const retornoLexador = lexador.mapear([
-                        "tipo de (a)  ",
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
-                });
-
-                it('tipo de binario com variável não definida e agrupamento', () => {
-                    const retornoLexador = lexador.mapear([
-                        "const a = 1      ",
-                        "tipo de (a + b)  ",
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
-                });
-            });
-
         });
 
         describe('Cenários falhar', () => {
@@ -698,28 +575,6 @@ describe('Analisador semântico', () => {
                     const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
-                });
-            });
-            describe('Cenários de falha', () => {
-                it('Falhar com variável não definida', () => {
-                    const retornoLexador = lexador.mapear([
-                        "falhar 'falhar ' + valor   ",
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
-                });
-
-                it('Falhar tipo de binario com variável não definida e agrupamento', () => {
-                    const retornoLexador = lexador.mapear([
-                        "const a = 1      ",
-                        "falhar (a + b)  ",
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
                 });
             });
         });

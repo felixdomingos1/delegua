@@ -269,7 +269,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
         do {
             if (parametros.length >= 255) {
-                this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 parâmetros');
+                this.erro(this.simbolos[this.atual], 'Função não pode ter mais de 255 parâmetros.');
             }
 
             const parametro: Partial<ParametroInterface> = {};

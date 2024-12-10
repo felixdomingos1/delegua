@@ -14,4 +14,7 @@ export default {
     TUPLA: 'tupla',
     VAZIO: 'vazio',
     VETOR: 'vetor',
+    VETOR_NUMERO: 'numero[]',
+    VETOR_NÚMERO: 'número[]',
+    VETOR_TEXTO: 'texto[]',
 };

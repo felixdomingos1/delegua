@@ -1,5 +1,6 @@
 import {
     AcessoIndiceVariavel,
+    AcessoMetodoOuPropriedade,
     Agrupamento,
     Chamada,
     Dicionario,
@@ -20,6 +21,7 @@ export type RetornoPrimario =
     | Isto
     | Agrupamento
     | Variavel
+    | AcessoMetodoOuPropriedade
     | AcessoIndiceVariavel
     | Chamada
     | Importar

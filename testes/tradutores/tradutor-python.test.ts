@@ -310,6 +310,7 @@ describe('Tradutor Delégua -> Python', () => {
         it('se -> if, código', () => {
             const retornoLexador = lexador.mapear(
                 [
+                    'var a = 2',
                     'se (a == 1) {', 
                     '    escreva(10)', 
                     '}'
@@ -325,6 +326,7 @@ describe('Tradutor Delégua -> Python', () => {
         it('senão -> else, código', () => {
             const retornoLexador = lexador.mapear(
                 [
+                    'var a = 2',
                     'se (a == 1) {', 
                     '    escreva(10)', 
                     '} senão {', 
@@ -869,6 +871,12 @@ describe('Tradutor Delégua -> Python', () => {
         it('Fila Estática', () => {
             const retornoLexador = lexador.mapear(
                 [
+                    'var maximoDeElementos = 4;',
+                    'var indexInicial = 0;',
+                    'var indexFinal = 0;',
+                    '// Variavel de controle em iterações',
+                    'var i = 0;',
+                    'var filaEstatica = [];',
                     'funcao enfileirar (valorEntrada) {',
                     '    se (indexFinal == maximoDeElementos) {',
                     '        escreva("Fila Cheia");',
@@ -902,12 +910,6 @@ describe('Tradutor Delégua -> Python', () => {
                     '        }',
                     '    }',
                     '}',
-                    'var maximoDeElementos = 4;',
-                    'var indexInicial = 0;',
-                    'var indexFinal = 0;',
-                    '// Variavel de controle em iterações',
-                    'var i = 0;',
-                    'var filaEstatica = [];',
                     '// Demonstração de uso das funções:',
                     'mostrar_fila();',
                     'var valorEntrada = 2;',

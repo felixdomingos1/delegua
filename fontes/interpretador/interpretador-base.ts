@@ -1574,6 +1574,9 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
                 break;
             case tipoDeDadosDelegua.VETOR:
+            case tipoDeDadosDelegua.VETOR_NUMERO:
+            case tipoDeDadosDelegua.VETOR_NÚMERO:
+            case tipoDeDadosDelegua.VETOR_TEXTO:
                 const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.simbolo.lexema];
                 if (metodoDePrimitivaVetor) {
                     return new MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
@@ -1768,9 +1771,9 @@ export class InterpretadorBase implements InterpretadorInterface {
                     linha: declaracaoAtual.linha,
                     hashArquivo: declaracaoAtual.hashArquivo,
                 });
+            } else {
+                return Promise.reject(erro);
             }
-
-            return Promise.reject(erro);
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
             const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
@@ -1812,12 +1815,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (retornoOuErro instanceof ErroEmTempoDeExecucao) {
                 this.erros.push(retornoOuErro);
             }
-        } catch (erro: any) {
-            this.erros.push({
-                erroInterno: erro,
-                linha: -1,
-                hashArquivo: -1,
-            });
+        } catch (erro: any) { // TODO: Estudar remoção do `catch`.
+            throw new Error(`Não deveria estar caindo aqui. Há erros no interpretador que não estão tratados corretamente. Erro atual: ${JSON.stringify(erro)}.`);
         } finally {
             if (this.performance) {
                 const deltaInterpretacao: [number, number] = hrtime(inicioInterpretacao);

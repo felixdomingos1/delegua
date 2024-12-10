@@ -910,7 +910,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
 
         do {
             if (parametros.length >= 255) {
-                this.erro(this.simboloAtual(), 'Não pode haver mais de 255 parâmetros');
+                this.erro(this.simboloAtual(), 'Função não pode ter mais de 255 parâmetros.');
             }
 
             const parametro = {};

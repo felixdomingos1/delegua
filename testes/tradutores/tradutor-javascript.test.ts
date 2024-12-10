@@ -658,10 +658,12 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('se -> if, código', () => {
             const retornoLexador = lexador.mapear(
                 [
+                    'var a = 2',
                     'se (a == 1) {', 
                     '    escreva(10)', 
                     '}'
                 ], -1);
+
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
@@ -674,10 +676,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('senão -> else, código', () => {
             const retornoLexador = lexador.mapear(
                 [
+                    'var a = 5',
                     'se (a == 1) {', 
                     '    escreva(10)', 
                     '} senão {', 
-                    '   escreva(20)', 
+                    '    escreva(20)', 
                     '}'
                 ],
                 -1
@@ -969,6 +972,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('se -> if, código', () => {
             const retornoLexador = lexador.mapear(
                 [
+                    'var a = 1',
                     'se (a == 1) {', 
                     '    escreva(10)', 
                     '}'
@@ -985,6 +989,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('condicional \'se\' com parenteses -> if com operadores lógicos, código', () => {
             const retornoLexador = lexador.mapear(
                 [
+                    'var a = 1',
                     'se (a == 1 ou a == 2) {',
                     '    escreva(10)', 
                     '}',
@@ -1006,6 +1011,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('condicional \'se\' sem parenteses -> if com operadores lógicos, código', () => {
             const retornoLexador = lexador.mapear(
                 [
+                    'var a = 3',
                     'se a == 1 ou a == 2 {',
                     '    escreva(10)', 
                     '}',

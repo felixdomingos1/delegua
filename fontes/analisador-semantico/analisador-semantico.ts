@@ -89,7 +89,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                         if (v) {
                             this.erro(
                                 declaracao.simbolo,
-                                `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um vetor de 'inteiros' ou 'real'.`
+                                `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um valor do tipo vetor de inteiro ou real. Atual: ${vetor.tipo}.`
                             );
                         }
                     }
@@ -98,7 +98,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                         if (v) {
                             this.erro(
                                 declaracao.simbolo,
-                                `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um vetor de 'texto'.`
+                                `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um valor do tipo vetor de texto. Atual: ${vetor.tipo}.`
                             );
                         }
                     }
@@ -111,23 +111,20 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             }
             if (declaracao.inicializador instanceof Literal) {
                 const literal = declaracao.inicializador as Literal;
-                if (declaracao.tipo === 'texto') {
-                    if (typeof literal.valor !== 'string') {
-                        this.erro(
-                            declaracao.simbolo,
-                            `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um 'texto'.`
-                        );
-                    }
+                if (declaracao.tipo === 'texto' && literal.tipo !== 'texto') {
+                    this.erro(
+                        declaracao.simbolo,
+                        `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um valor do tipo texto. Atual: ${literal.tipo}.`
+                    );
                 }
-                if (['inteiro', 'real'].includes(declaracao.tipo)) {
-                    if (typeof literal.valor !== 'number') {
-                        this.erro(
-                            declaracao.simbolo,
-                            `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um 'número'.`
-                        );
-                    }
+                if (['inteiro', 'número', 'real'].includes(declaracao.tipo) && !['inteiro', 'número', 'real'].includes(literal.tipo)) {
+                    this.erro(
+                        declaracao.simbolo,
+                        `Atribuição inválida para '${declaracao.simbolo.lexema}', é esperado um valor do tipo número. Atual: ${literal.tipo}.`
+                    );
                 }
             }
+            // TODO: Estudar remoção.
             if (declaracao.inicializador instanceof Leia) {
                 if (declaracao.tipo !== 'texto') {
                     this.erro(
@@ -199,7 +196,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 // TODO: `argumento` pode ser Literal (tipo já resolvido) ou variável (tipo inferido em outra etapa).
                 const argumento = expressao.argumentos[indice] as any;
                 if (argumento) {
-                    if (parametro.tipoDado === 'texto' && typeof argumento.valor !== 'string') {
+                    if (parametro.tipoDado === 'texto' && argumento.tipo !== 'texto') {
                         this.erro(
                             expressao.entidadeChamada.simbolo,
                             `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${argumento.tipo}).`
@@ -483,7 +480,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         if (declaracao.inicializador instanceof FuncaoConstruto) {
             const funcao = declaracao.inicializador;
             if (funcao.parametros.length >= 255) {
-                this.erro(declaracao.simbolo, 'Não pode haver mais de 255 parâmetros');
+                this.erro(declaracao.simbolo, 'Função não pode ter mais de 255 parâmetros.');
             }
         }
 
@@ -506,20 +503,12 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
-        for (let parametro of declaracao.funcao.parametros) {
-            // TODO: Repensar.
-            /* if (parametro.hasOwnProperty('tipoDado') && !parametro.tipoDado.tipo) {
-                this.erro(declaracao.simbolo, `O tipo '${parametro.tipoDado.tipoInvalido}' não é válido.`);
-            } */
-            console.log(parametro);
-        }
-
         if (declaracao.funcao.tipoRetorno === undefined) {
             this.erro(declaracao.simbolo, `Declaração de retorno da função é inválido.`);
         }
 
         if (declaracao.funcao.parametros.length >= 255) {
-            this.erro(declaracao.simbolo, 'Não pode haver mais de 255 parâmetros');
+            this.erro(declaracao.simbolo, 'Função não pode ter mais de 255 parâmetros.');
         }
 
         let tipoRetornoFuncao = declaracao.funcao.tipoRetorno;
@@ -550,7 +539,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     }
                 }
             } else {
-                if (tipoRetornoFuncao !== 'vazio') {
+                if (!['vazio', 'qualquer'].includes(tipoRetornoFuncao)) {
                     this.erro(declaracao.simbolo, `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`);
                 }
             }

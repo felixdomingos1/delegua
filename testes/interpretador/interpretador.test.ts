@@ -195,7 +195,11 @@ describe('Interpretador', () => {
                 it('Desestruturação de variáveis', async () => {
                     let _saida: string = '';
                     const retornoLexador = lexador.mapear(
-                        ['var a = { "prop1": "b" }', 'var { prop1 } = a', 'escreva(prop1)'],
+                        [
+                            'var a = { "prop1": "b" }', 
+                            'var { prop1 } = a', 
+                            'escreva(prop1)'
+                        ],
                         -1
                     );
 
@@ -212,7 +216,11 @@ describe('Interpretador', () => {
                 it('Desestruturação de constantes', async () => {
                     let _saida: string = '';
                     const retornoLexador = lexador.mapear(
-                        ['const a = { "prop1": "c" }', 'const { prop1 } = a', 'escreva(prop1)'],
+                        [
+                            'const a = { "prop1": "c" }', 
+                            'const { prop1 } = a', 
+                            'escreva(prop1)'
+                        ],
                         -1
                     );
 
@@ -419,7 +427,7 @@ describe('Interpretador', () => {
                         'número',
                         'número',
                         'texto',
-                        'vetor',
+                        'número[]',
                         'vetor',
                         'vetor',
                         'função',
@@ -435,6 +443,7 @@ describe('Interpretador', () => {
                         'número',
                         'dicionário'
                     ];
+
                     const retornoLexador = lexador.mapear(
                         [
                             'escreva(tipo de verdadeiro)',
@@ -469,13 +478,15 @@ describe('Interpretador', () => {
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saidasMensagens.includes(saida)).toBeTruthy();
-                    };
+                    let _saidas: string[] = [];
+                    interpretador.funcaoDeRetorno = (saida: string) => {
+                        _saidas.push(saida);
+                    }
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toStrictEqual(saidasMensagens);
                 });
 
                 it('Tipo de número', async () => {
@@ -699,7 +710,8 @@ describe('Interpretador', () => {
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(retornoInterpretador.erros).toHaveLength(2);
+                    expect(retornoInterpretador).toBeTruthy();
+                    expect(retornoInterpretador.erros).toHaveLength(1);
                     expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('Operadores precisam ser números.');
                 });
 
@@ -941,18 +953,6 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                });
-
-                it('Laços de repetição - para cada - vetor inválido', async () => {
-                    const retornoLexador = lexador.mapear(
-                        ['var v = falso', 'para cada elemento em v {', "   escreva('Valor: ', elemento)", '}'],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
                 });
 
                 it('Laços de repetição - para', async () => {
@@ -1644,9 +1644,9 @@ describe('Interpretador', () => {
                     const codigo = [
                         'funcao A(data) { }',
                         'classe B herda A {',
-                        'construtor(data) {',
-                        'super.data(data);',
-                        '}',
+                        '    construtor(data) {',
+                        '        super.data(data);',
+                        '    }',
                         '}',
                         'var a = B("13/12/1981");',
                     ];
@@ -1656,7 +1656,8 @@ describe('Interpretador', () => {
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(retornoInterpretador.erros).toHaveLength(2);
+                    expect(retornoInterpretador).toBeTruthy();
+                    expect(retornoInterpretador.erros).toHaveLength(1);
                     expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
                         'Superclasse precisa ser uma classe.'
                     );
@@ -1698,11 +1699,17 @@ describe('Interpretador', () => {
                 });
 
                 it('Tupla Dupla - Atribuição por indice', async () => {
-                    const retornoLexador = lexador.mapear(['var t = [(1, 2)]', 't[0] = 3'], -1);
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var t = [(1, 2)]', 
+                            't[0] = 3'
+                        ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
+                    expect(retornoInterpretador).toBeTruthy();
+                    expect(retornoInterpretador.erros).toHaveLength(1);
                     expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
                         'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.'
                     );

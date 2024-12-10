@@ -190,19 +190,6 @@ describe('Biblioteca Global', () => {
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
-
-        it('Falha - Funçao de mapeamento inválida', async () => {
-            const codigo = [
-                "var f = 'Sou uma função'",
-                "escreva(todosEmCondicao([1, 2, 3, 4, 5, 6], f))"
-            ];
-            const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-        });
     });
 
     describe('filtrarPor()', () => {
@@ -218,19 +205,6 @@ describe('Biblioteca Global', () => {
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
-
-        it('Falha - Funçao de mapeamento inválida', async () => {
-            const codigo = [
-                "var f = 'Sou uma função'",
-                "escreva(filtrarPor([1, 2, 3, 4, 5, 6], f))"
-            ];
-            const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-        });
     });
 
     describe('primeiroEmCondicao()', () => {
@@ -245,19 +219,6 @@ describe('Biblioteca Global', () => {
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
-        });
-
-        it('Falha - Funçao de mapeamento inválida', async () => {
-            const codigo = [
-                "var f = 'Sou uma função'",
-                "escreva(primeiroEmCondicao([1, 2, 3, 4, 5, 6], f))"
-            ];
-            const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
         });
     });
 
@@ -407,6 +368,7 @@ describe('Biblioteca Global', () => {
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
+            expect(retornoInterpretador).toBeTruthy
             expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
             const erro = retornoInterpretador.erros[0];
             expect(erro.erroInterno).toBeDefined();

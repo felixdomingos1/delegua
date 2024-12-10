@@ -37,6 +37,34 @@ export enum TipoNativoSimbolo {
     VAZIO = '<palavra reservada vazio ajuda="palavra reservada usada para definir funções que não retornam valores">',
 }
 
+function inferirVetor(vetor: Array<any>): TipoInferencia {
+    const tiposEmVetor = new Set(vetor.map((elemento) => typeof elemento));
+    if (tiposEmVetor.size > 1) {
+        return 'vetor';
+    }
+
+    const tipoVetor = tiposEmVetor.values().next().value;
+    switch (tipoVetor) {
+        case 'bigint':
+            return 'longo[]';
+        case 'boolean':
+            return 'lógico[]';
+        case 'number':
+            return 'número[]';
+        case 'string':
+            return 'texto[]';
+        case 'object':
+            const tiposObjetosEmVetor = new Set(vetor.map((elemento) => (elemento as any).tipo));
+            if (tiposObjetosEmVetor.size > 1) {
+                return 'vetor';
+            }
+
+            return `${tiposObjetosEmVetor.values().next().value}[]` as TipoInferencia;
+        default:
+            return 'vetor';
+    }
+}
+
 export function inferirTipoVariavel(
     variavel: string | number | Array<any> | boolean | null | undefined
 ): TipoInferencia | TipoNativoSimbolo {
@@ -54,25 +82,9 @@ export function inferirTipoVariavel(
             return 'nulo';
         case 'object':
             if (Array.isArray(variavel)) {
-                const tiposEmVetor = new Set(variavel.map((elemento) => typeof elemento));
-                if (tiposEmVetor.size > 1) {
-                    return 'vetor';
-                }
-
-                const tipoVetor = tiposEmVetor[0];
-                switch (tipoVetor) {
-                    case 'bigint':
-                        return 'longo[]';
-                    case 'boolean':
-                        return 'lógico[]';
-                    case 'number':
-                        return 'número[]';
-                    case 'string':
-                        return 'texto[]';
-                    default:
-                        return 'vetor';
-                }
+                return inferirVetor(variavel);
             }
+
             if (variavel === null) return 'nulo';
             if (variavel.constructor.name === 'DeleguaFuncao') return 'função';
             if (variavel.constructor.name === 'DeleguaModulo') return 'módulo';
