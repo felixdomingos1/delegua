@@ -30,14 +30,34 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
     esquerda: Construto;
     operador: SimboloInterface<TTipoSimbolo>;
     direita: Construto;
+    tipo: string = 'qualquer';
 
-    constructor(hashArquivo: number, esquerda: any, operador: SimboloInterface<TTipoSimbolo>, direita: any) {
+    constructor(hashArquivo: number, esquerda: Construto, operador: SimboloInterface<TTipoSimbolo>, direita: Construto) {
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;
 
         this.esquerda = esquerda;
         this.operador = operador;
         this.direita = direita;
+        this.tipo = this.deduzirTipo();
+    }
+
+    protected deduzirTipo(): string {
+        if (['logico', 'lógico'].includes(this.esquerda.tipo) || ['logico', 'lógico'].includes(this.direita.tipo)) {
+            return 'lógico';
+        }
+
+        if (this.esquerda.tipo === 'texto' || this.direita.tipo === 'texto') {
+            return 'texto';
+        }
+
+        if (this.esquerda.tipo === 'inteiro' && this.direita.tipo === 'inteiro') {
+            return 'inteiro';
+        }
+
+        if (['numero', 'número'].includes(this.esquerda.tipo)  || ['numero', 'número'].includes(this.direita.tipo)) {
+            return 'número';
+        }
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

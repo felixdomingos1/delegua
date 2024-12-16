@@ -415,7 +415,7 @@ export class AvaliadorSintatico
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.exponenciacao();
-            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+            expressao = new Binario<TipoDeSimboloDelegua>(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
@@ -439,7 +439,7 @@ export class AvaliadorSintatico
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.multiplicar();
-            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+            expressao = new Binario<TipoDeSimboloDelegua>(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
@@ -451,7 +451,7 @@ export class AvaliadorSintatico
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MENOR_MENOR, tiposDeSimbolos.MAIOR_MAIOR)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.adicaoOuSubtracao();
-            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+            expressao = new Binario<TipoDeSimboloDelegua>(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
@@ -463,7 +463,7 @@ export class AvaliadorSintatico
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_AND)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.bitShift();
-            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+            expressao = new Binario<TipoDeSimboloDelegua>(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
@@ -475,7 +475,7 @@ export class AvaliadorSintatico
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.BIT_XOR)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.bitE();
-            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+            expressao = new Binario<TipoDeSimboloDelegua>(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
@@ -493,8 +493,8 @@ export class AvaliadorSintatico
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.bitOu(); // Única diferença entre esta implementação e base.
-            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+            const direito = this.bitOu();
+            expressao = new Binario<TipoDeSimboloDelegua>(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
@@ -506,7 +506,7 @@ export class AvaliadorSintatico
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL_IGUAL)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.comparar();
-            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+            expressao = new Binario<TipoDeSimboloDelegua>(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
