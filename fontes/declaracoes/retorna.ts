@@ -1,14 +1,21 @@
+import { Construto } from '../construtos';
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 export class Retorna extends Declaracao {
     simboloChave: SimboloInterface;
-    valor: any;
+    valor?: Construto;
+    tipo: string;
 
-    constructor(simboloChave: SimboloInterface, valor: any) {
+    constructor(simboloChave: SimboloInterface, valor?: Construto) {
         super(Number(simboloChave.linha), simboloChave.hashArquivo);
         this.simboloChave = simboloChave;
-        this.valor = valor;
+        if (valor) {
+            this.valor = valor;
+            this.tipo = valor.tipo;
+        } else {
+            this.tipo = 'vazio';
+        }
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

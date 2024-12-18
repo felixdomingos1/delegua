@@ -1,4 +1,5 @@
 import hrtime from 'browser-process-hrtime';
+
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
@@ -228,12 +229,12 @@ export class AvaliadorSintatico
                     return new Unario(
                         this.hashArquivo,
                         simboloIncrementoDecremento,
-                        new Variavel(this.hashArquivo, simboloIdentificador, tipoOperando),
+                        new Variavel(this.hashArquivo, simboloIdentificador, tipoOperando || 'qualquer'),
                         'DEPOIS'
                     );
                 }
 
-                return new Variavel(this.hashArquivo, simboloIdentificador, tipoOperando);
+                return new Variavel(this.hashArquivo, simboloIdentificador, tipoOperando || 'qualquer');
 
             case tiposDeSimbolos.IMPORTAR:
                 this.avancarEDevolverAnterior();
@@ -586,7 +587,7 @@ export class AvaliadorSintatico
                 );
             }
 
-            this.erro(igual, 'Tarefa de atribuição inválida');
+            throw this.erro(igual, 'Tarefa de atribuição inválida');
         }
 
         return expressao;
@@ -682,7 +683,7 @@ export class AvaliadorSintatico
 
     override declaracaoContinua(): Continua {
         if (this.blocos < 1) {
-            this.erro(this.simbolos[this.atual - 1], "'continua' precisa estar em um laço de repetição.");
+            throw this.erro(this.simbolos[this.atual - 1], "'continua' precisa estar em um laço de repetição.");
         }
 
         // Ponto-e-vírgula é opcional aqui.
@@ -936,7 +937,7 @@ export class AvaliadorSintatico
 
     override declaracaoSustar(): Sustar {
         if (this.blocos < 1) {
-            this.erro(this.simbolos[this.atual - 1], "'sustar' ou 'pausa' deve estar dentro de um laço de repetição.");
+            throw this.erro(this.simbolos[this.atual - 1], "'sustar' ou 'pausa' deve estar dentro de um laço de repetição.");
         }
 
         // Ponto-e-vírgula é opcional aqui.
@@ -1100,7 +1101,7 @@ export class AvaliadorSintatico
                 simboloAnterior.tipo === tiposDeSimbolos.IDENTIFICADOR &&
                 simboloAnterior.linha === simboloAtual.linha
             ) {
-                this.erro(
+                throw this.erro(
                     this.simbolos[this.atual],
                     'Não é permitido ter dois identificadores seguidos na mesma linha.'
                 );
@@ -1372,7 +1373,7 @@ export class AvaliadorSintatico
 
         const corpoDaFuncao = this.corpoDaFuncao(tipo);
         this.pilhaEscopos.definirTipoVariavel(simbolo.lexema, corpoDaFuncao.tipoRetorno || 'qualquer');
-        return new FuncaoDeclaracao(simbolo, corpoDaFuncao, null, decoradores);
+        return new FuncaoDeclaracao(simbolo, corpoDaFuncao, corpoDaFuncao.tipoRetorno || 'qualquer', decoradores);
     }
 
     protected logicaComumParametros(): ParametroInterface[] {
@@ -1432,6 +1433,28 @@ export class AvaliadorSintatico
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Esperado '{' antes do escopo do ${tipo}.`);
 
         const corpo = this.blocoEscopo();
+        if (tipoRetorno !== 'qualquer') {
+            const expressoesRetorna: Retorna[] = corpo.filter(e => e.constructor.name === 'Retorna') as Retorna[];
+
+            if (tipoRetorno === 'vazio' && expressoesRetorna.length > 0) {
+                const retornosNaoVazios = expressoesRetorna.filter(e => e.tipo !== 'vazio');
+                if (retornosNaoVazios.length > 0) {
+                    throw this.erro(retornosNaoVazios[0].simboloChave, `Função declara explicitamente 'vazio', mas usa expressão 'retorna' com tipo de retorno diferente de vazio.`);
+                }
+            }
+
+            const tiposRetornos = new Set(expressoesRetorna.map(e => e.tipo));
+            if (tiposRetornos.size > 1 && !tiposRetornos.has('qualquer')) {
+                let tiposEncontrados = Array.from(tiposRetornos).reduce((acumulador, valor) => acumulador += valor + ', ');
+                tiposEncontrados = tiposEncontrados.slice(0, -2);
+                throw this.erro(
+                    parenteseEsquerdo, 
+                    `Função retorna valores com mais de um tipo. Tipo esperado: ${tipoRetorno}. Tipos encontrados: ${tiposEncontrados}.`);
+            }
+
+            // console.log(expressoesRetorna);
+        }
+
         return new FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo, tipoRetorno);
     }
 
@@ -1605,7 +1628,7 @@ export class AvaliadorSintatico
             const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
-            } else {
+            } else if (retornoDeclaracao !== null) {
                 declaracoes.push(retornoDeclaracao as Declaracao);
             }
         }

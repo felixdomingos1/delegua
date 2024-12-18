@@ -11,6 +11,14 @@ describe('Lexador', () => {
         });
 
         describe('Cenários de sucesso', () => {
+            it('Sucesso - Vetor de código vazio', () => {
+                const resultado = lexador.mapear([], -1);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(0);
+                expect(resultado.erros).toHaveLength(0);
+            });
+
             it('Sucesso - Código vazio', () => {
                 const resultado = lexador.mapear([''], -1);
 

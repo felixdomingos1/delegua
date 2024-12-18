@@ -45,7 +45,8 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
     protected erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
         const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
-        this.erros.push(excecao);
+        // TODO: Estudar remover.
+        // this.erros.push(excecao);
         return excecao;
     }
 
@@ -269,7 +270,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
 
         do {
             if (parametros.length >= 255) {
-                this.erro(this.simbolos[this.atual], 'Função não pode ter mais de 255 parâmetros.');
+                throw this.erro(this.simbolos[this.atual], 'Função não pode ter mais de 255 parâmetros.');
             }
 
             const parametro: Partial<ParametroInterface> = {};

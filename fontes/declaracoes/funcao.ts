@@ -2,16 +2,19 @@ import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 import { Decorador, FuncaoConstruto } from '../construtos';
 
+/**
+ * Uma declaração de função. 
+ */
 export class FuncaoDeclaracao extends Declaracao {
     simbolo: SimboloInterface;
     funcao: FuncaoConstruto;
-    tipoRetorno?: SimboloInterface;
+    tipoRetorno: string;
     decoradores: Decorador[];
 
     constructor(
         simbolo: SimboloInterface,
         funcao: FuncaoConstruto,
-        tipoRetorno?: SimboloInterface,
+        tipoRetorno: string = 'qualquer',
         decoradores: Decorador[] = []
     ) {
         super(Number(simbolo.linha), simbolo.hashArquivo);

@@ -503,21 +503,6 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
 
-                it('Função retorna vazio mas tem retorno de valores', async () => {
-                    const retornoLexador = lexador.mapear(
-                        [
-                            'funcao executar(valor1, valor2): vazio {',
-                            '   var resultado = valor1 + valor2',
-                            '   retorna resultado',
-                            '}',
-                        ],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                });
-
                 it('Retorno texto sem retorno dentro da função', async () => {
                     const retornoLexador = lexador.mapear(
                         [
@@ -575,7 +560,8 @@ describe('Avaliador sintático', () => {
                     expect(corpo).toHaveLength(1);
                     expect(corpo[0].constructor.name).toBe('Retorna');
                     const corpoRetorna = corpo[0] as Retorna;
-                    expect(corpoRetorna.valor.constructor.name).toBe('Binario');
+                    expect(corpoRetorna.valor).toBeTruthy();
+                    expect((corpoRetorna.valor as any).constructor.name).toBe('Binario');
                     const corpoRetornaBinario = corpoRetorna.valor as Binario;
                     expect(corpoRetornaBinario.esquerda.constructor.name).toBe('Variavel');
                     expect(corpoRetornaBinario.direita.constructor.name).toBe('Variavel');
@@ -693,24 +679,45 @@ describe('Avaliador sintático', () => {
                 );
             });
 
-            it('Sustar fora de laço de repetição', async () => {
-                const retornoLexador = lexador.mapear(['sustar;'], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            describe('Funções', () => {
+                it('Função retorna vazio mas tem retorno de valores', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao executar(valor1, valor2): vazio {',
+                            '    var resultado = valor1 + valor2',
+                            '    retorna resultado',
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
-                expect(retornoAvaliadorSintatico.erros[0].message).toBe(
-                    "'sustar' ou 'pausa' deve estar dentro de um laço de repetição."
-                );
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    const erro = retornoAvaliadorSintatico.erros[0];
+                    expect(erro.message).toBe("Função declara explicitamente 'vazio', mas usa expressão 'retorna' com tipo de retorno diferente de vazio.");
+                });
             });
 
-            it('Continua fora de laço de repetição', async () => {
-                const retornoLexador = lexador.mapear(['continua;'], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            describe('Laços de repetição', () => {
+                it('Continua fora de laço de repetição', async () => {
+                    const retornoLexador = lexador.mapear(['continua;'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "'continua' precisa estar em um laço de repetição."
+                    );
+                });
 
-                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
-                expect(retornoAvaliadorSintatico.erros[0].message).toBe(
-                    "'continua' precisa estar em um laço de repetição."
-                );
+                it('Sustar fora de laço de repetição', async () => {
+                    const retornoLexador = lexador.mapear(['sustar;'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "'sustar' ou 'pausa' deve estar dentro de um laço de repetição."
+                    );
+                });
             });
 
             // TODO: Repensar.

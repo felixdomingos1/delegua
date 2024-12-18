@@ -68,7 +68,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                 );
             }
 
-            this.erro(setaAtribuicao, 'Tarefa de atribuição inválida');
+            throw this.erro(setaAtribuicao, 'Tarefa de atribuição inválida');
         }
 
         return expressao;

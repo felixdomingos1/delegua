@@ -497,12 +497,16 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
             if (expressao instanceof Variavel) {
                 const simbolo = expressao.simbolo;
                 return new Atribuir(this.hashArquivo, simbolo, valor);
-            } else if (expressao instanceof AcessoMetodoOuPropriedade) {
+            } 
+            
+            if (expressao instanceof AcessoMetodoOuPropriedade) {
                 return new DefinirValor(this.hashArquivo, 0, expressao.objeto, expressao.simbolo, valor);
-            } else if (expressao instanceof AcessoIndiceVariavel) {
+            } 
+            
+            if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoPorIndice(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
             }
-            this.erro(igual, 'Tarefa de atribuição inválida');
+            throw this.erro(igual, 'Tarefa de atribuição inválida');
         }
 
         return expressao;
@@ -571,7 +575,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
             let espacosIndentacaoLinhaAtual = this.pragmas[simboloAtual.linha].espacosIndentacao;
             const espacosIndentacaoLinhaAnterior = this.pragmas[simboloAnterior.linha].espacosIndentacao;
             if (espacosIndentacaoLinhaAtual <= espacosIndentacaoLinhaAnterior) {
-                this.erro(
+                throw this.erro(
                     simboloAtual,
                     `Indentação inconsistente na linha ${simboloAtual.linha}. ` +
                         `Esperado: >= ${espacosIndentacaoLinhaAnterior}. ` +
@@ -731,7 +735,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
 
     declaracaoSustar() {
         if (this.blocos < 1) {
-            this.erro(this.simboloAnterior(), "'sustar' deve estar dentro de um laço de repetição.");
+            throw this.erro(this.simboloAnterior(), "'sustar' deve estar dentro de um laço de repetição.");
         }
 
         return new Sustar(this.simboloAtual());
@@ -739,7 +743,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
 
     declaracaoContinua(): Continua {
         if (this.blocos < 1) {
-            this.erro(this.simboloAnterior(), "'continua' precisa estar em um laço de repetição.");
+            throw this.erro(this.simboloAnterior(), "'continua' precisa estar em um laço de repetição.");
         }
 
         return new Continua(this.simboloAtual());
@@ -910,7 +914,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<S
 
         do {
             if (parametros.length >= 255) {
-                this.erro(this.simboloAtual(), 'Função não pode ter mais de 255 parâmetros.');
+                throw this.erro(this.simboloAtual(), 'Função não pode ter mais de 255 parâmetros.');
             }
 
             const parametro = {};

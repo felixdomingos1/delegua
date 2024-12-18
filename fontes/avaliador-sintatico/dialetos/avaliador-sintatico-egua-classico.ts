@@ -440,7 +440,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
             } else if (expressao instanceof AcessoIndiceVariavel) {
                 return new AtribuicaoPorIndice(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
             }
-            this.erro(igual, 'Tarefa de atribuição inválida');
+            throw this.erro(igual, 'Tarefa de atribuição inválida');
         }
 
         return expressao;
@@ -565,7 +565,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
     declaracaoSustar(): Sustar {
         if (this.blocos < 1) {
-            this.erro(this.simboloAnterior(), "'pausa' deve estar dentro de um loop.");
+            throw this.erro(this.simboloAnterior(), "'pausa' deve estar dentro de um loop.");
         }
 
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após 'pausa'.");
@@ -574,7 +574,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
     declaracaoContinua(): Continua {
         if (this.blocos < 1) {
-            this.erro(this.simboloAnterior(), "'continua' precisa estar em um laço de repetição.");
+            throw this.erro(this.simboloAnterior(), "'continua' precisa estar em um laço de repetição.");
         }
 
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após 'continua'.");
@@ -762,7 +762,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
                 if (parametros.length >= 255) {
-                    this.erro(this.simboloAtual(), 'Função não pode ter mais de 255 parâmetros.');
+                    throw this.erro(this.simboloAtual(), 'Função não pode ter mais de 255 parâmetros.');
                 }
 
                 const parametro = {};

@@ -85,7 +85,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
                     valor
                 );
             }
-            this.erro(igual, 'Tarefa de atribuição inválida');
+            throw this.erro(igual, 'Tarefa de atribuição inválida');
         } */
 
         return expressao;
